@@ -1,0 +1,6 @@
+{
+  "name": "إلكترونك سيتي",
+  "description": "An offline-first Arabian e-commerce application for Electronic City components with local sync, checkout, and COD payment.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
