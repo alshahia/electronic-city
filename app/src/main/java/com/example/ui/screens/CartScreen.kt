@@ -17,34 +17,36 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import com.example.R
 import com.example.data.model.CartItem
 import com.example.data.model.Product
+import com.example.ui.components.EmptyState
 import com.example.ui.theme.*
-import com.example.ui.viewmodel.ECommerceViewModel
+import com.example.ui.viewmodel.AppViewModels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
-    viewModel: ECommerceViewModel,
+    vms: AppViewModels,
     onClose: () -> Unit
 ) {
-    val cartItemsDetails by viewModel.cartItemsDetails.collectAsState()
-    val cartTotal by viewModel.cartTotal.collectAsState()
-    val isOnlineState by viewModel.isOnline.collectAsState()
+    val cartItemsDetails by vms.cart.cartItemsDetails.collectAsState()
+    val cartTotal by vms.cart.cartTotal.collectAsState()
+    val isOnlineState by vms.shop.isOnline.collectAsState()
 
     var showCheckoutForm by remember { mutableStateOf(false) }
     var checkoutCompleted by remember { mutableStateOf(false) }
 
-    val savedUsername by viewModel.username.collectAsState()
-    val savedPhone by viewModel.userPhone.collectAsState()
-    val savedLocation by viewModel.userLocation.collectAsState()
+    val savedUsername by vms.userProfile.username.collectAsState()
+    val savedPhone by vms.userProfile.userPhone.collectAsState()
+    val savedLocation by vms.userProfile.userLocation.collectAsState()
 
     // Input States
     var fullName by remember { mutableStateOf("") }
@@ -58,10 +60,9 @@ fun CartScreen(
             fullName = ""
         }
         phoneNumber = savedPhone
-        // Strip GIS prefix from delivery address if fetched by GPS for better clean manual typing
+        // Strip GPS prefix from delivery address if fetched by GPS for cleaner manual typing
         deliveryAddress = if (savedLocation.startsWith("GPS:")) {
-            savedLocation.substringAfter("بغداد")
-            savedLocation
+            savedLocation.removePrefix("GPS:")
         } else {
             savedLocation
         }
@@ -79,7 +80,7 @@ fun CartScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "سلة التسوق (${cartItemsDetails.sumOf { it.first.quantity }})",
+                            text = stringResource(R.string.cart_title, cartItemsDetails.sumOf { it.first.quantity }),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.primary
@@ -88,7 +89,7 @@ fun CartScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(Icons.Filled.ArrowForward, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowForward, contentDescription = stringResource(R.string.cd_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
@@ -108,7 +109,7 @@ fun CartScreen(
                     onContinue = {
                         checkoutCompleted = false
                         showCheckoutForm = false
-                        viewModel.selectTab(0) // open account history screen
+                        vms.navigation.selectTab(0) // open account history screen
                         onClose()
                     }
                 )
@@ -130,10 +131,10 @@ fun CartScreen(
                                 cartItem = cartItem,
                                 product = product,
                                 onQuantityChange = { nextQty ->
-                                    viewModel.updateQuantity(product.id, nextQty)
+                                    vms.cart.updateQuantity(product.id, nextQty)
                                 },
                                 onRemoveItem = {
-                                    viewModel.removeFromCart(product.id)
+                                    vms.cart.removeFromCart(product.id)
                                 }
                             )
                         }
@@ -167,8 +168,8 @@ fun CartScreen(
                                 .padding(16.dp),
                             horizontalAlignment = Alignment.End
                         ) {
-                            CostRow(label = "مجموع المنتجات:", cost = cartTotal)
-                            CostRow(label = "أجور التوصيل نقداً:", cost = deliveryFee)
+                            CostRow(label = stringResource(R.string.cart_cost_products), cost = cartTotal, currency = stringResource(R.string.currency_iqd))
+                            CostRow(label = stringResource(R.string.cart_cost_delivery), cost = deliveryFee, currency = stringResource(R.string.currency_iqd))
                             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                             
                             // Net Pricing
@@ -178,13 +179,13 @@ fun CartScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "${formatPrice(cartTotal + deliveryFee)} د.ع",
+                                    text = stringResource(R.string.price_with_currency, formatPrice(cartTotal + deliveryFee), stringResource(R.string.currency_iqd)),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Black,
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = "المجموع الكلي (COD):",
+                                    text = stringResource(R.string.cart_total_cod),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -204,7 +205,7 @@ fun CartScreen(
                                     )
                                 ) {
                                     Text(
-                                        text = "الاستمرار بطلب الشراء (COD)",
+                                        text = stringResource(R.string.cart_action_continue_cod),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onPrimary
@@ -213,10 +214,12 @@ fun CartScreen(
                             } else {
                                 Button(
                                     onClick = {
-                                        viewModel.submitCODCheckout(
+                                        vms.order.submitCODCheckout(
                                             name = fullName,
                                             phone = phoneNumber,
                                             address = deliveryAddress,
+                                            cartTotal = cartTotal,
+                                            cartItems = cartItemsDetails,
                                             onSuccess = {
                                                 checkoutCompleted = true
                                             }
@@ -230,7 +233,7 @@ fun CartScreen(
                                     )
                                 ) {
                                     Text(
-                                        text = "تأكيد وإرسال طلب الشحن",
+                                        text = stringResource(R.string.cart_action_confirm_cod),
                                         fontSize = 14.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = MaterialTheme.colorScheme.onPrimary
@@ -269,7 +272,7 @@ fun CartItemRow(
             IconButton(onClick = onRemoveItem) {
                 Icon(
                     imageVector = Icons.Filled.Delete,
-                    contentDescription = "Remove Item",
+                    contentDescription = stringResource(R.string.cd_remove_item),
                     tint = DiscountRed.copy(alpha = 0.8f)
                 )
             }
@@ -291,7 +294,7 @@ fun CartItemRow(
                     textAlign = TextAlign.Right
                 )
                 Text(
-                    text = "${formatPrice(product.price)} د.ع",
+                    text = stringResource(R.string.price_with_currency, formatPrice(product.price), stringResource(R.string.currency_iqd)),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.primary
@@ -310,7 +313,7 @@ fun CartItemRow(
                             .size(26.dp)
                             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.15f), CircleShape)
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add", modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.cd_add), modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurface)
                     }
 
                     Text(
@@ -326,7 +329,7 @@ fun CartItemRow(
                             .size(26.dp)
                             .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.15f), CircleShape)
                     ) {
-                        Icon(Icons.Filled.Remove, contentDescription = "Remove", modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurface)
+                        Icon(Icons.Filled.Remove, contentDescription = stringResource(R.string.cd_remove), modifier = Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             }
@@ -344,6 +347,8 @@ fun CartItemRow(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(product.imageUrl)
                             .crossfade(true)
+                            .placeholder(R.drawable.ic_product_placeholder)
+                            .error(R.drawable.ic_product_error)
                             .build(),
                         contentDescription = product.nameAr,
                         contentScale = ContentScale.Crop,
@@ -356,7 +361,7 @@ fun CartItemRow(
                         modifier = Modifier.fillMaxSize().background(ShopGreenContainer),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.DeveloperBoard, contentDescription = "Tech Item", tint = ShopGreenDark, modifier = Modifier.size(24.dp))
+                        Icon(Icons.Filled.DeveloperBoard, contentDescription = stringResource(R.string.cd_tech_item), tint = ShopGreenDark, modifier = Modifier.size(24.dp))
                     }
                 }
             }
@@ -365,7 +370,7 @@ fun CartItemRow(
 }
 
 @Composable
-fun CostRow(label: String, cost: Double) {
+fun CostRow(label: String, cost: Double, currency: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -374,7 +379,7 @@ fun CostRow(label: String, cost: Double) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "${formatPrice(cost)} د.ع",
+            text = stringResource(R.string.price_with_currency, formatPrice(cost), currency),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -399,6 +404,7 @@ fun CheckoutFormSection(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .imePadding()
             .padding(top = 16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp),
@@ -409,7 +415,7 @@ fun CheckoutFormSection(
             horizontalAlignment = Alignment.End
         ) {
             Text(
-                text = "تفاصيل شحن الدفع عند الاستلام (COD)",
+                text = stringResource(R.string.cart_checkout_title),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.primary
@@ -420,7 +426,7 @@ fun CheckoutFormSection(
             )
 
             // Name
-            Text(text = "الاسم الثلاثي للمستلم *", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.cart_field_full_name), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = fullName,
@@ -435,7 +441,7 @@ fun CheckoutFormSection(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Phone
-            Text(text = "رقم الهاتف الفعال للتوصيل *", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.cart_field_phone), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = phoneNumber,
@@ -450,7 +456,7 @@ fun CheckoutFormSection(
             Spacer(modifier = Modifier.height(10.dp))
 
             // Delivery Address
-            Text(text = "العنوان بالتفصيل (مثل: بغداد، الكرادة، قرب الساحة) *", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.cart_field_address), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(4.dp))
             OutlinedTextField(
                 value = deliveryAddress,
@@ -477,7 +483,7 @@ fun CheckoutFormSection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "الدفع نقداً عند استلام الطرد (COD) للتوصيل الأمن لقطع الغيار.",
+                        text = stringResource(R.string.cart_payment_notice),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,
@@ -485,7 +491,7 @@ fun CheckoutFormSection(
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Icon(Icons.Filled.Lock, contentDescription = "COD Payment Type Only", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp))
+                    Icon(Icons.Filled.Lock, contentDescription = stringResource(R.string.cd_cod_payment_only), tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(15.dp))
                 }
             }
         }
@@ -494,47 +500,38 @@ fun CheckoutFormSection(
 
 @Composable
 fun EmptyCartLayout(onBrowse: () -> Unit) {
+    // D9.2 — the cart is the only empty-state in the app that has
+    // a CTA (Browse store offerings). The illustration + title +
+    // subtitle all come from `EmptyState`; the action button is
+    // the optional `action` slot. Wrapping the whole thing in a
+    // `Box(fillMaxSize)` keeps the layout pinned to the center
+    // of the cart sheet — the old implementation did the same.
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AddShoppingCart,
-                contentDescription = "Empty Basket",
-                tint = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.size(72.dp)
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "سلة المشتريات فارغة",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "لم تقم بإضافة قطع أو دوائر إلكترونية بعد لسجل الشراء.",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 40.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onBrowse,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text(text = "تصفح معروضات المتجر", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimary)
+        EmptyState(
+            illustration = painterResource(R.drawable.empty_cart_art),
+            title = stringResource(R.string.empty_cart_title),
+            subtitle = stringResource(R.string.empty_cart_subtitle),
+            action = {
+                Button(
+                    onClick = onBrowse,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.cart_empty_action_browse),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
-        }
+        )
     }
 }
 
@@ -560,14 +557,14 @@ fun OrderSuccessLayout(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
-                    contentDescription = "Success checkmark",
+                    contentDescription = stringResource(R.string.cd_success_checkmark),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(48.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "تهانينا! تم تسجيل طلب COD بنجاح ",
+                text = stringResource(R.string.cart_success_title),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.primary,
@@ -576,9 +573,9 @@ fun OrderSuccessLayout(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = if (isOnline)
-                    "تم تقديم طرد الشحن بنجاح وإرساله للخادوم المركزي. سيقوم مندوب إلكترونك سيتي بالاتصال بك قريباً!"
+                    stringResource(R.string.cart_success_online)
                 else
-                    "تم حفظ الطلب محلياً بالهاتف بنجاح! نظراً لعدم توفر إنترنت حالياً، سيقوم التطبيق بمزامنته ذاتياً بمجرد استعادة الإشارة.",
+                    stringResource(R.string.cart_success_offline),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -595,7 +592,7 @@ fun OrderSuccessLayout(
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = "عرض طلباتي والعودة", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimary)
+                Text(text = stringResource(R.string.cart_success_action_view_orders), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

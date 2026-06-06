@@ -23,7 +23,17 @@ data class Product(
     val isFeatured: Boolean = false,
     val isDiscounted: Boolean = false,
     val stock: Int = 10,
-    val lastUpdated: Long = System.currentTimeMillis()
+    val lastUpdated: Long = System.currentTimeMillis(),
+    /**
+     * H2 / Phase 7B-2 — soft-archive timestamp.
+     * `null` = active product, non-null = archived at this epoch ms.
+     * The default keeps v0/v1/v2 builds forward-compatible: the
+     * MIGRATION_2_3 adds the column as `INTEGER` (nullable by
+     * definition in SQLite), so existing rows just get `null`.
+     * OrderItem FK is RESTRICT (lines 71-76), so an archived
+     * product is safe to keep around for order history.
+     */
+    val archivedAt: Long? = null
 ) {
     fun getName(isArabic: Boolean): String = if (isArabic) nameAr else nameEn
     fun getDescription(isArabic: Boolean): String = if (isArabic) descriptionAr else descriptionEn

@@ -13,6 +13,8 @@ import com.example.data.model.OrderItem
 import com.example.data.model.OrderWithItems
 import com.example.data.model.Product
 import com.example.data.remote.RemoteDatabaseService
+import com.example.data.di.ServiceLocator
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -25,6 +27,14 @@ class ProductRepository(
     val discountedProducts: Flow<List<Product>> = productDao.getDiscountedProductsFlow()
 
     val isOnline: Flow<Boolean> = remoteService.isOnlineFlow
+
+    /**
+     * H2 / Phase 7B-2 — soft-archive list. Backed by a Room query
+     * with `WHERE archivedAt IS NOT NULL` so the admin "Archived"
+     * tab is just a `collectAsState` away. Excludes the currently
+     * active catalog (which is [allProducts]).
+     */
+    val archivedProducts: Flow<List<Product>> = productDao.getArchivedProductsFlow()
 
     fun getProductsByCategory(category: String): Flow<List<Product>> {
         return productDao.getProductsByCategoryFlow(category)
@@ -56,18 +66,59 @@ class ProductRepository(
     }
 
     /**
-     * Store owner adds or edits a product. Updates Room locally and uploads to Firebase on the cloud.
+     * Store owner adds or edits a product. Updates Room locally and
+     * uploads to Firebase on the cloud.
+     *
+     * H1 / Phase 7B-2 — Returns [Result]<[ProductWriteResult]> so the
+     * AccountScreen admin form can distinguish the four outcomes
+     * (local+remote ok, local-only-because-offline, both-failed,
+     * local-ok-remote-failed). The previous `Result<Unit>` collapsed
+     * them all into a boolean snackbar that always claimed
+     * "saved to cloud".
+     *
+     * The outer [Result] is a Kotlin-level exception wrapper for
+     * unexpected programming errors (e.g. a Room migration blew up);
+     * the typed [ProductWriteResult] is the *expected* set of
+     * outcomes. Per the H1 contract, every normal-flow code path
+     * returns `Result.success(...)` with one of the 4 cases.
      */
-    suspend fun addOrUpdateProduct(product: Product): Result<Unit> {
+    suspend fun addOrUpdateProduct(product: Product): Result<ProductWriteResult> {
         return try {
             productDao.insertProducts(listOf(product))
-            if (remoteService.checkConnectionDirect()) {
+            try {
                 remoteService.uploadProductOnline(product)
+                Result.success(ProductWriteResult.BothOk)
+            } catch (remoteError: Exception) {
+                if (remoteService.checkConnectionDirect()) {
+                    Result.success(ProductWriteResult.LocalFailedButRemoteOk(remoteError))
+                } else {
+                    Result.success(ProductWriteResult.LocalOnlyOffline(remoteError))
+                }
             }
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
+        } catch (localError: Exception) {
+            Result.failure(localError)
         }
+    }
+
+    /**
+     * H2 / Phase 7B-2 — soft-archive a product. Sets `archivedAt`
+     * to `now` so the row disappears from the storefront flows
+     * and shows up in [archivedProducts]. The remote copy is
+     * untouched (a real `deleteProductOnline` would be a
+     * different contract; for now we just hide the row locally
+     * so order history is preserved per the OrderItem RESTRICT
+     * FK).
+     */
+    suspend fun archiveProduct(id: String): Result<Unit> = runCatching {
+        productDao.archiveProduct(id, System.currentTimeMillis())
+    }
+
+    /**
+     * H2 — restore a previously archived product. Clears
+     * `archivedAt`; the row re-appears in [allProducts].
+     */
+    suspend fun unarchiveProduct(id: String): Result<Unit> = runCatching {
+        productDao.unarchiveProduct(id)
     }
 }
 
@@ -92,9 +143,30 @@ class CartRepository(
     }
 
     suspend fun addToCart(productId: String, quantity: Int = 1) {
-        val existing = cartDao.getQuantity(productId)
-        if (existing != null) {
-            cartDao.updateQuantity(productId, existing + quantity)
+        // H3 / Phase 7B-2 — stock guard. The read-modify-write
+        // (existing-quantity + quantity) happens *after* the
+        // stock check so a user who already has 2 in the cart
+        // can still add more, as long as the total stays within
+        // the product's stock ceiling. The check is intentionally
+        // NOT inside a `withTransaction` because the cart edit
+        // is a single DAO call and the cart→checkout reconciliation
+        // happens again in `OrderRepository.placeCODOrder` inside
+        // a real transaction.
+        val stock = productDao.getStockDirect(productId) ?: 0
+        val existing = cartDao.getQuantity(productId) ?: 0
+        val newTotal = existing + quantity
+        if (newTotal > stock) {
+            val product = productDao.getProductById(productId)
+            throw OutOfStockException(
+                productId = productId,
+                productNameAr = product?.nameAr ?: productId,
+                productNameEn = product?.nameEn ?: productId,
+                availableStock = stock,
+                requestedQuantity = newTotal
+            )
+        }
+        if (existing > 0) {
+            cartDao.updateQuantity(productId, newTotal)
         } else {
             cartDao.insertCartItem(CartItem(productId = productId, quantity = quantity))
         }
@@ -138,14 +210,29 @@ class OrderRepository(
     private val orderItemDao: OrderItemDao,
     private val cartDao: CartDao,
     private val productDao: ProductDao,
-    private val remoteService: RemoteDatabaseService
+    private val remoteService: RemoteDatabaseService,
+    /**
+     * H3 / Phase 7B-2 — the database reference is used to run
+     * the stock-check + order-insert + stock-decrement inside
+     * a single [androidx.room.RoomDatabase.withTransaction] so
+     * the stock check is race-free against concurrent orders.
+     * Wired by [com.example.data.di.ServiceLocator] which
+     * already has the singleton [com.example.data.local.AppDatabase].
+     */
+    private val database: com.example.data.local.AppDatabase
 ) {
     val allOrdersFlow: Flow<List<OrderWithItems>> = orderDao.getAllOrdersWithItemsFlow()
 
     /**
      * Places a Cash on Delivery (COD) order.
-     * Inserts order + items in a single transaction, clears the cart,
-     * then attempts to push to the remote backend.
+     *
+     * H3 / Phase 7B-2 — the stock check + order insert +
+     * stock-decrement + cart-clear all run inside a single
+     * [withTransaction] so a concurrent order for the same
+     * product can't double-spend the available stock. If any
+     * line item exceeds the current `Product.stock` the
+     * transaction rolls back and [OutOfStockException] is
+     * thrown to the caller (which is [OrderViewModel]).
      */
     suspend fun placeCODOrder(
         customerName: String,
@@ -166,9 +253,48 @@ class OrderRepository(
         )
 
         return try {
-            orderItemDao.replaceForOrder(newOrder.id, items)
-            orderDao.insertOrder(newOrder)
-            cartDao.clearCart()
+            // H3 — atomic stock check + decrement. The transaction
+            // body re-reads the stock for every line item (Room
+            // serializes writes, so the read is consistent); if
+            // any item's stock is < requested quantity, throw and
+            // roll back. The `decrementStock` query itself has a
+            // `WHERE stock >= :quantity` guard so the second line
+            // of defense catches any TOCTOU between the read and
+            // the update.
+            database.withTransaction {
+                for (item in items) {
+                    val stock = productDao.getStockDirect(item.productId) ?: 0
+                    if (stock < item.quantity) {
+                        val product = productDao.getProductById(item.productId)
+                        throw OutOfStockException(
+                            productId = item.productId,
+                            productNameAr = product?.nameAr ?: item.productId,
+                            productNameEn = product?.nameEn ?: item.productId,
+                            availableStock = stock,
+                            requestedQuantity = item.quantity
+                        )
+                    }
+                }
+                for (item in items) {
+                    val rowsUpdated = productDao.decrementStock(item.productId, item.quantity)
+                    if (rowsUpdated == 0) {
+                        // TOCTOU race: the read passed but the
+                        // update found 0 rows. Roll back the
+                        // whole transaction.
+                        val product = productDao.getProductById(item.productId)
+                        throw OutOfStockException(
+                            productId = item.productId,
+                            productNameAr = product?.nameAr ?: item.productId,
+                            productNameEn = product?.nameEn ?: item.productId,
+                            availableStock = productDao.getStockDirect(item.productId) ?: 0,
+                            requestedQuantity = item.quantity
+                        )
+                    }
+                }
+                orderItemDao.replaceForOrder(newOrder.id, items)
+                orderDao.insertOrder(newOrder)
+                cartDao.clearCart()
+            }
 
             if (remoteService.checkConnectionDirect()) {
                 val isUploaded = remoteService.uploadOrder(newOrder)
@@ -178,7 +304,16 @@ class OrderRepository(
                 }
             }
             Result.success(newOrder)
+        } catch (e: OutOfStockException) {
+            // H3 — surface the out-of-stock failure to the
+            // caller as a Result.failure. The transaction has
+            // already rolled back.
+            Result.failure(e)
         } catch (e: Exception) {
+            // H1 parity — local write succeeded but the remote
+            // push failed. The order is still in the local DB
+            // (transaction committed), and `syncUnsyncedOrders`
+            // will pick it up on the next connection.
             Result.success(newOrder)
         }
     }

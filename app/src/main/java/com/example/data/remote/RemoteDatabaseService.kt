@@ -51,4 +51,34 @@ interface RemoteDatabaseService {
      * Direct sync check or manual trigger.
      */
     suspend fun checkConnectionDirect(): Boolean
+
+    /**
+     * D9.4 — Persist the device's FCM token with the current user so
+     * the backend can target this device for push notifications
+     * (order updates, promotions, etc.). The in-memory implementation
+     * is a no-op; the Firestore implementation writes the token to
+     * `users/{uid}/devices/{tokenId}`.
+     */
+    suspend fun uploadDeviceToken(token: String): Boolean
+
+    /**
+     * D8.23 / Phase 7B-2 — Authorize the current caller as the store
+     * admin. Used by `AdminAuthViewModel.signInWithFirebase(password)`
+     * to gate the admin tabs (replaces the hardcoded `admin123`
+     * check that lived in `AccountScreen.kt:896`).
+     *
+     * The in-memory implementation is a stub that returns
+     * `Result.success(Unit)` for *any* non-blank password (kept loose
+     * to preserve the demo UX). The real implementation will check a
+     * Firebase custom claim via the Auth SDK and return
+     * `Result.failure(IllegalAccessException("not admin"))` on
+     * rejection.
+     *
+     * IMPORTANT: until the Firebase project is wired (D9.3), this
+     * gate is untrusted. The hardcoded password in source has been
+     * removed; in practice any non-blank password will succeed
+     * because the stub does not validate. This is intentional during
+     * the in-memory phase and is gated on D9.3.
+     */
+    suspend fun requireAdmin(password: String): Result<Unit>
 }

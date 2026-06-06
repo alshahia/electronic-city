@@ -1,3 +1,361 @@
 <resources>
     <string name="app_name">إلكترونك سيتي</string>
+
+    <!-- OFL font attribution (D3 / Phase 3.3).
+         IBM Plex Sans Arabic and IBM Plex Sans are licensed under the SIL
+         Open Font License v1.1. The full license text ships in
+         res/values/ofl_license.xml. -->
+    <string name="font_attribution_ibm_plex">This product includes IBM Plex Sans Arabic and IBM Plex Sans, licensed under the SIL Open Font License v1.1. Copyright \u00A9 2017 IBM Corp.</string>
+
+    <!-- ═══ Section headers (D5 / Phase 6.5) ═══ -->
+    <string name="section_categories">الأقسام</string>
+    <string name="section_more_link">المزيد ×</string>
+    <string name="section_discounts_offers">التخفيضات المليئة بالعروض</string>
+    <string name="section_recently_arrived">وصل حديثاً</string>
+    <string name="section_featured_for_you">المنتجات المميزة لك</string>
+    <string name="section_discounts_title">عروض التخفيضات المميزة</string>
+    <string name="section_wishlist_title">قائمة الأمنيات</string>
+    <string name="section_wishlist_count">قائمة الأمنيات (%1$d)</string>
+    <string name="section_wishlist_offline_badge">محفوظة دون اتصال ⚡</string>
+
+    <!-- ═══ Search (ProductsScreen) ═══ -->
+    <string name="search_placeholder">ابحث عن منتج…</string>
+    <string name="search_clear">مسح التصفية</string>
+    <string name="search_results_count">تم العثور على %1$d من العناصر الآتية</string>
+    <string name="search_suggestions_label">اقتراحات البحث:</string>
+    <string name="search_suggestion_cpu">معالج</string>
+    <string name="search_suggestion_memory">ذاكرة</string>
+    <string name="search_suggestion_display">شاشة</string>
+    <string name="search_suggestion_battery">بطارية</string>
+
+    <!-- ═══ Empty states ═══ -->
+    <string name="empty_search_title">لا توجد منتجات مطابقة للبحث</string>
+    <string name="empty_search_subtitle">جرب تغيير أحرف البحث أو تصفح قسماً آخر</string>
+    <string name="empty_discounts_title">لا توجد عروض تخفيضات نشطة حالياً</string>
+    <string name="empty_discounts_subtitle">يرجى التحقق لاحقاً لرؤية العروض الجديدة</string>
+    <string name="empty_wishlist_title">قائمة الأمنيات فارغة حالياً</string>
+    <string name="empty_wishlist_subtitle">قم بإضافة المكونات الإلكترونية التي تهمك للوصول السريع إليها وتصفحها بدون الحاجة لإنترنت.</string>
+    <string name="empty_cart_title">سلة المشتريات فارغة</string>
+    <string name="empty_cart_subtitle">لم تقم بإضافة قطع أو دوائر إلكترونية بعد لسجل الشراء.</string>
+    <string name="empty_orders_title">لم تقم بإنشاء أي طلبات شراء بعد.</string>
+    <string name="empty_inventory_title">لا يوجد منتجات بالمستودع حالياً</string>
+    <string name="empty_customers_title">لا توجد سجلات منشطة أو Firebase غير متصل بالشبكة حالياً.</string>
+
+    <!-- ═══ Error retry card (Phase 6.1) ═══ -->
+    <string name="error_load_failed">تعذر تحميل المنتجات</string>
+    <string name="error_load_subtitle">تحقق من اتصالك بالإنترنت ثم أعد المحاولة</string>
+    <string name="action_retry">إعادة المحاولة</string>
+    <string name="error_admin_password">رمز الدخول غير صحيح. يرجى المحاولة مجدداً.</string>
+    <string name="error_username_required">الرجاء كتابة اسم الحساب بشكل صحيح</string>
+    <string name="error_admin_required_fields">الرجاء كتابة الاسم والسعر بوضوح</string>
+
+    <!-- ═══ Toasts ═══ -->
+    <string name="toast_back_exit">اضغط مرة أخرى للخروج</string>
+    <string name="toast_admin_loaded_for_edit">تم نقل البيانات للاستمارة للتعديل!</string>
+    <string name="admin_action_lock_session">إقفال الجلسة</string>
+    <string name="admin_action_lock_session_cd">إقفال جلسة المدير والعودة إلى شاشة كلمة المرور</string>
+    <string name="admin_auth_locked">محاولات كثيرة جداً. حاول بعد %1$d ثانية.</string>
+    <string name="admin_auth_locked_cd">تسجيل دخول المدير مقفل مؤقتاً</string>
+
+    <!-- ═══ Currency (centralized so future i18n can swap the suffix) ═══ -->
+    <string name="currency_iqd">د.ع</string>
+    <string name="currency_iqd_short">ع.ع</string>
+    <string name="price_with_currency">%1$s %2$s</string>
+
+    <!-- ═══ Product card ═══ -->
+    <string name="product_add_to_cart">أضف للسلة</string>
+    <string name="product_discount_badge">تنزيلات %1$d</string>
+    <string name="product_original_price">السعر %1$s د.ع</string>
+    <string name="product_current_price">%1$s د.ع</string>
+    <string name="product_image_content_description">صورة المنتج</string>
+    <string name="product_favorite_content_description">المفضلة</string>
+    <string name="product_add_to_cart_content_description">أضف إلى السلة</string>
+
+    <!-- ═══ Banners (HomeScreen) ═══ -->
+    <string name="banner_authorized_distributor">موزع معتمد</string>
+    <string name="banner_1_title">موزع معتمد لبطاريات Tipsun</string>
+    <string name="banner_1_tagline">أفضل خلايا ليثيوم وبطاريات راوتر أصلية</string>
+    <string name="banner_1_accent">سعة حقيقية وأداء ممتاز لجميع مشاريعك</string>
+    <string name="banner_2_title">أجهزة التحكم والقطع الذكية CNC</string>
+    <string name="banner_2_tagline">دقة متناهية وأجهزة قياس متقدمة لورش التطوير</string>
+    <string name="banner_2_accent">لوحات حماية ومحركات ذات عزم عالي</string>
+    <string name="banner_3_title">لوحات الميكروكنترولر وأورانج باي</string>
+    <string name="banner_3_tagline">جميع لوحات التحكم وقطع الغيار والتطوير في مكان واحد</string>
+    <string name="banner_3_accent">شاشات قياس وبوكس مبرمجة تعليمية للمهندسين</string>
+
+    <!-- ═══ Categories ═══ -->
+    <string name="category_processors">المعالجات</string>
+    <string name="category_memory">الذاكرة</string>
+    <string name="category_peripherals">الملحقات</string>
+    <string name="category_battery">البطاريات ومستلزماتها</string>
+    <string name="category_components">العناصر الإلكترونية</string>
+    <string name="category_all">الكل</string>
+    <string name="category_development_boards">لوحات التطوير</string>
+
+    <!-- ═══ MessageBus: cart ═══ -->
+    <string name="msg_cart_added">تمت الإضافة إلى السلة بنجاح</string>
+    <!-- H3 / Phase 7B-2 — stock-mismatch feedback. The
+         %1$d is the available stock count so the user can
+         see how many are still buyable. -->
+    <string name="msg_cart_out_of_stock">نفذت الكمية من هذا المنتج.</string>
+    <string name="msg_cart_out_of_stock_with_count">الكمية المتبقية فقط %1$d قطعة.</string>
+    <!-- T5.10 — surfaced by `OrderViewModel.submitCODCheckout`
+         when `placeCODOrder` returns Result.failure(
+         OutOfStockException). Same shape as the cart copy;
+         the user can either remove the offending line or
+         reduce the quantity. -->
+    <string name="msg_order_out_of_stock">تعذّر إكمال الطلب: نفدت الكمية من أحد المنتجات.</string>
+
+    <!-- ═══ MessageBus: order ═══ -->
+    <string name="msg_order_missing_fields">يرجى ملء جميع الحقول المطلوبة لإرسال الطلب</string>
+    <string name="msg_order_synced">تم تقديم طلبك بنجاح ومزامنته مع الخادوم!</string>
+    <string name="msg_order_local">تم حفظ الطلب محلياً! سيتم مزامنته تلقائياً عند عودة الإنترنت.</string>
+    <string name="msg_order_failed">تعذر معالجة الطلب في الوقت الحالي</string>
+    <string name="msg_orders_resynced">تم رفع %1$d من الطلبات المؤجلة خادومياً ومزامنة حسابك!</string>
+    <string name="msg_orders_already_synced">جميع الطلبات والبيانات متزامنة بالكامل!</string>
+    <string name="msg_still_offline">لا يزال الهاتف غير متصل بالإنترنت!</string>
+    <string name="msg_demo_online">بث الاتصال بالإنترنت مفعّل (متصل)</string>
+    <string name="msg_demo_offline">تم إيقاف الاتصال (وضع عطل الشبكة)</string>
+    <!-- D9.3 — shown when the admin "Toggle connectivity" is tapped on a build
+         that uses real Firebase (BuildConfig.USE_FIREBASE = true). The
+         real backend's online state is driven by ConnectivityManager +
+         actual Firestore calls, so the demo flag is meaningless. -->
+    <string name="msg_demo_unavailable">محاكاة الاتصال غير متوفرة في هذا البناء (يتم استخدام Firebase الحقيقي)</string>
+
+    <!-- ═══ D9.4 — FCM push notifications ═══ -->
+    <string name="notification_channel_orders_name">تحديثات الطلبات</string>
+    <string name="notification_channel_orders_desc">إشعارات حول حالة الطلبات والعروض الجديدة</string>
+    <string name="notification_default_title">المدينة الإلكترونية</string>
+    <string name="notification_default_body">لديك إشعار جديد من المدينة الإلكترونية</string>
+    <string name="notification_permission_rationale">نحتاج إذنك لإظهار إشعارات الطلبات والتحديثات المهمة.</string>
+
+    <!-- ═══ MessageBus: shop sync ═══ -->
+    <string name="msg_shop_sync_ok">تم تحديث المنتجات بنجاح من الخادوم</string>
+    <string name="msg_shop_sync_offline">تعذر الاتصال بالإنترنت، تصفح المنتجات المخزنة!</string>
+    <string name="msg_shop_admin_ok">تم تحديث مستودع المتجر ومزامنته سحابياً مع العملاء!</string>
+    <string name="msg_shop_admin_offline">حدث خطأ أثناء الاتصال بالخادوم، حُفظ المنتج محلياً!</string>
+    <string name="msg_shop_admin_ok_both">تم حفظ المنتج سحابياً ومحلياً بنجاح.</string>
+    <string name="msg_shop_admin_ok_local_only">حُفظ المنتج محلياً. ستتم المزامنة السحابية فور عودة الاتصال.</string>
+    <string name="msg_shop_admin_both_failed">تعذر حفظ المنتج. يرجى التحقق من الاتصال والمحاولة مجدداً.</string>
+    <string name="msg_shop_admin_local_failed">حُفظ المنتج محلياً فقط. ستتم مزامنة الخادوم لاحقاً.</string>
+    <string name="msg_shop_admin_archived">تم أرشفة المنتج وإخفاؤه عن واجهة المتجر.</string>
+    <string name="msg_shop_admin_unarchived">تمت استعادة المنتج وإعادته للمتجر.</string>
+    <string name="msg_shop_admin_archive_failed">تعذر إكمال العملية. يرجى المحاولة مجدداً.</string>
+
+    <!-- ═══ MessageBus: profile sync ═══ -->
+    <string name="msg_profile_synced">تمت مزامنة بيانات حسابك السحابي مع خادوم Firebase بنجاح!</string>
+    <string name="msg_profile_local">حُفظ الحساب محلياً وسيتزامن سحابياً بمجرد عودة الاتصال!</string>
+
+    <!-- ═══ Content descriptions (accessibility) ═══ -->
+    <string name="cd_back_to_previous">الرجوع للصفحة السابقة</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_return">رجوع</string>
+    <string name="cd_topbar_contact">Contact us</string>
+    <string name="cd_add_to_cart">Add to Cart</string>
+    <string name="cd_save_wishlist">حفظ الأمنيات</string>
+    <string name="cd_close">عودة</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_cart">Cart</string>
+    <string name="cd_sync">Sync</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_clear">Clear</string>
+    <string name="cd_add">Add</string>
+    <string name="cd_remove">Remove</string>
+    <string name="cd_remove_item">Remove Item</string>
+    <string name="cd_tech_item">Tech Item</string>
+    <string name="cd_empty_basket">Empty Basket</string>
+    <string name="cd_success_checkmark">Success checkmark</string>
+    <string name="cd_edit_profile">Edit Profile</string>
+    <string name="cd_avatar">Avatar</string>
+    <string name="cd_navigate">Navigate</string>
+    <string name="cd_sync_state">Sync state</string>
+    <string name="cd_completed_step">Completed step</string>
+    <string name="cd_offline_ready">Offline ready</string>
+    <string name="cd_ec_shop_logo">EC Shop Logo</string>
+    <string name="cd_cod_payment_only">COD Payment Type Only</string>
+
+    <!-- ═══ MainScreen chrome (top bar + bottom nav + network badge) ═══ -->
+    <string name="topbar_avatar_text">EC</string>
+    <string name="topbar_contact">تواصل معنا</string>
+    <string name="badge_network_online">متصل</string>
+    <string name="badge_network_offline">دون اتصال</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_products">المنتجات</string>
+    <string name="nav_discounts">التخفيضات</string>
+    <string name="nav_favorites">الأمنيات</string>
+    <string name="nav_account">الحساب</string>
+
+    <!-- ═══ CartScreen ═══ -->
+    <string name="cart_title">سلة التسوق (%1$d)</string>
+    <string name="cart_cost_products">مجموع المنتجات:</string>
+    <string name="cart_cost_delivery">أجور التوصيل نقداً:</string>
+    <string name="cart_total_cod">المجموع الكلي (COD):</string>
+    <string name="cart_action_continue_cod">الاستمرار بطلب الشراء (COD)</string>
+    <string name="cart_action_confirm_cod">تأكيد وإرسال طلب الشحن</string>
+    <string name="cart_checkout_title">تفاصيل شحن الدفع عند الاستلام (COD)</string>
+    <string name="cart_field_full_name">الاسم الثلاثي للمستلم *</string>
+    <string name="cart_field_phone">رقم الهاتف الفعال للتوصيل *</string>
+    <string name="cart_field_address">العنوان بالتفصيل (مثل: بغداد، الكرادة، قرب الساحة) *</string>
+    <string name="cart_payment_notice">الدفع نقداً عند استلام الطرد (COD) للتوصيل الأمن لقطع الغيار.</string>
+    <string name="cart_empty_action_browse">تصفح معروضات المتجر</string>
+    <string name="cart_success_title">تهانينا! تم تسجيل طلب COD بنجاح</string>
+    <string name="cart_success_online">تم تقديم طرد الشحن بنجاح وإرساله للخادوم المركزي. سيقوم مندوب إلكترونك سيتي بالاتصال بك قريباً!</string>
+    <string name="cart_success_offline">تم حفظ الطلب محلياً بالهاتف بنجاح! نظراً لعدم توفر إنترنت حالياً، سيقوم التطبيق بمزامنته ذاتياً بمجرد استعادة الإشارة.</string>
+    <string name="cart_success_action_view_orders">عرض طلباتي والعودة</string>
+
+    <!-- ═══ ProductDetailScreen ═══ -->
+    <string name="detail_add_to_cart">أضف للسلة التسوق</string>
+    <string name="detail_price_label">السعر الحالي</string>
+    <string name="detail_discount_overlay">عرض خاص: خصم %1$d%%</string>
+    <string name="detail_stock_available">متوفر في المخزن (%1$d)</string>
+    <string name="detail_stock_out">نفذت الكمية</string>
+    <string name="detail_specs_title">تفاصيل ومواصفات المنتج الإلكتروني:</string>
+    <string name="detail_reference_id_label">رمز المكون المرجعي:</string>
+    <string name="detail_offline_notice">هذا المكون مدعوم بالكامل للتخفيض والطلب دون تفاعل إنترنت</string>
+
+    <!-- ═══ AccountScreen — chrome ═══ -->
+    <string name="account_badge_registered">مسجل سحابياً</string>
+    <string name="account_badge_guest">حساب ضيف</string>
+    <string name="account_phone_unbound">لم يتم ربط رقم هاتف بعد</string>
+    <string name="account_phone_bound">%1$s %2$s</string>
+    <string name="account_sim_title">محاكاة حالة الاتصال بالإنترنت</string>
+    <string name="account_sim_online_desc">الهاتف متصل بالخادوم (مزامنة فورية وتحديثات الأسعار نشطة)</string>
+    <string name="account_sim_offline_desc">وضع عطل الشبكة مفعل (تصفح كاش كلي، حفظ طلبات الـ COD لتتم مزامنتها تلقائياً عند الاتصال)</string>
+    <string name="account_sim_action_connect">الاتصال الآن للمزامنة</string>
+    <string name="account_theme_title">مظهر التطبيق (ثيم)</string>
+    <string name="account_theme_subtitle">اختر السمة واللون المفضل لديك لتصفح مريح للقطع الإلكترونية والمتحكمات</string>
+    <string name="account_theme_system">تلقائي</string>
+    <string name="account_theme_light">مضيء</string>
+    <string name="account_theme_dark">داكن</string>
+
+    <string name="account_language_title">لغة التطبيق</string>
+    <string name="account_language_subtitle">اختر لغة الواجهة؛ يتم الحفظ تلقائياً ويؤثر على اتجاه التخطيط</string>
+    <string name="account_language_arabic">العربية</string>
+    <string name="account_language_english">English</string>
+
+    <!-- ═══ AccountScreen — option rows ═══ -->
+    <string name="account_option_profile">بيانات حسابي وتأكيد التسجيل</string>
+    <string name="account_option_orders">طلباتي شحن COD</string>
+    <string name="account_option_contact">إتصل بنا</string>
+    <string name="account_option_privacy">سياسة الخصوصية</string>
+    <string name="account_option_terms">الشروط والأحكام</string>
+    <string name="account_option_admin">لوحة تحكم إدارة مستودع المتجر (Admin)</string>
+    <string name="account_option_logout">تسجيل الخروج</string>
+
+    <!-- ═══ AccountScreen — sheet titles ═══ -->
+    <string name="account_sheet_my_orders">سجل طلباتي (COD)</string>
+    <string name="account_sheet_contact">قنوات الاتصال بنا</string>
+    <string name="account_sheet_privacy">سياسة خصوصية البيانات</string>
+    <string name="account_sheet_terms">الشروط والأحكام العامة</string>
+    <string name="account_sheet_logout">تسجيل الخروج</string>
+    <string name="account_sheet_profile">تفاصيل ضبط الحساب</string>
+    <string name="account_sheet_admin">لوحة تحكم إدارة المتجر (Admin)</string>
+
+    <!-- ═══ AccountScreen — profile form ═══ -->
+    <string name="profile_intro">قم بتعديل وتأكيد بيانات حسابك. عند الشراء، سيتم ربط هذه البيانات تلقائياً بطلبك COD.</string>
+    <string name="profile_avatar_label">اختر أيقونة الحساب (اختياري)</string>
+    <string name="profile_field_username">اسم مستخدم الحساب *</string>
+    <string name="profile_field_phone">رقم الهاتف الفعال مع رمز الدولة *</string>
+    <string name="profile_phone_placeholder">78XXXXXXXX</string>
+    <string name="profile_phone_country_hint">اضغط على مربع الرمز لتغيير الدولة (العراق 🇮🇶، السعودية 🇸🇦، الأردن 🇯🇴، الإمارات 🇦🇪، مصر 🇪🇬)</string>
+    <string name="profile_field_location">عنوان وموقع سكن المستلم للأجهزة والقطع *</string>
+    <string name="profile_address_placeholder">اكتب عنوانك بالتفصيل (مثل: بغداد، الكرادة، ساحة التحريات)</string>
+    <string name="profile_gps_waiting">يرتبط بمستشعرات الأقمار الصناعية GPS...</string>
+    <string name="profile_gps_success">تم قراءة مستشعر GPS التلقائي بنجاح!</string>
+    <string name="profile_gps_prompt">اضغط على الزر أدناه لجلب موقعك الحالي الفوري عبر الـ GPS تلقائياً</string>
+    <string name="profile_gps_action">جلب الموقع التلقائي (مستشعر GPS)</string>
+    <string name="profile_action_save">حفظ التعديلات وتحديث السحابة</string>
+    <string name="profile_action_confirm">تأكيد الحساب ومزامنة السحابة</string>
+    <string name="profile_action_cancel">إلغاء</string>
+
+    <!-- ═══ AccountScreen — admin authentication ═══ -->
+    <string name="admin_auth_title">المصادقة الأمنية لمدير المتجر</string>
+    <string name="admin_auth_subtitle">قم بإدخال كلمة المرور السرية لفتح مستندات المستودع وإدارة كميات ومواصفات الأجهزة الإلكترونية لجميع العملاء.</string>
+    <string name="admin_demo_notice_title">تنويه للمهندس المجرب (Demo Mode)</string>
+    <string name="admin_demo_password_hint" translatable="false">D8.23: blanked — password is no longer displayed (vm-backed gate).</string>
+    <string name="admin_password_field">رمز الدخول السري *</string>
+    <string name="admin_action_login">تسجيل الدخول والنفاذ للمستودع</string>
+
+    <!-- ═══ AccountScreen — admin tabs ═══ -->
+    <string name="admin_tab_customers">العملاء</string>
+    <string name="admin_tab_inventory">جرد المستودع</string>
+    <string name="admin_tab_archived">الأرشيف</string>
+
+    <!-- ═══ AccountScreen — admin product form ═══ -->
+    <string name="admin_product_add">إضافة جهاز</string>
+    <string name="admin_product_edit">تعديل جهاز</string>
+    <string name="admin_product_add_subtitle">إضافة جهاز لاسلكي أو قطعة جديدة</string>
+    <string name="admin_product_edit_subtitle">تعديل كمية وسعر المنتج القائم</string>
+    <string name="admin_product_id_display">معرف: %1$s</string>
+    <string name="admin_product_field_name_ar">الاسم باللغة العربية (سلسلة الرصد والبيع) *</string>
+    <string name="admin_product_name_ar_placeholder">مثال: لوحة معالج ESP8266 مدمج</string>
+    <string name="admin_product_field_name_en">Product Name (English Spec) *</string>
+    <string name="admin_product_name_en_placeholder">Example: NodeMCU ESP12E Wireless Module</string>
+    <string name="admin_product_field_stock">كمية المخزن المستودعي *</string>
+    <string name="admin_product_field_price">سعر البيع IQD *</string>
+    <string name="admin_product_field_category">فئة تصنيف القطعة الالكترونية *</string>
+    <string name="admin_product_field_desc_ar">الوصف والمواصفات بالعربية (شاشات العرض) *</string>
+    <string name="admin_product_field_desc_en">Product Description &amp; Specs (English)</string>
+    <string name="admin_product_field_image">صورة المنتج (اختر صورة تجريبية أو الصق رابط مخصص) *</string>
+    <string name="admin_image_presets_label">روابط سريعة:</string>
+    <string name="admin_action_new_form">استمارة جديدة</string>
+    <string name="admin_action_upload">رفع وتأكيد بالتحديث السحابي</string>
+
+    <!-- ═══ AccountScreen — admin inventory tab ═══ -->
+    <string name="admin_inventory_title">قائمة القطع والكميات المحجوزة بالمستودع</string>
+    <string name="admin_inventory_subtitle">اضغط على أي عنصر لقراءة وملء بيانات الاستمارة من أجل تعديل سعر البيع أو تحديث كمية المخزون وسعة شحنه.</string>
+    <string name="admin_inventory_stock_count">الكمية: %1$d قطع</string>
+    <string name="admin_inventory_price">%1$s ع.ع</string>
+    <string name="admin_action_archive_cd">أرشفة المنتج وإخفاؤه عن المتجر</string>
+
+    <!-- ═══ AccountScreen — admin archived tab (H2) ═══ -->
+    <string name="admin_archived_title">المنتجات المؤرشفة (مخفية عن المتجر)</string>
+    <string name="admin_archived_subtitle">المنتجات هنا لا تظهر في واجهة المتجر ولكن سجلات الطلبات السابقة تظل محفوظة بالكامل.</string>
+    <string name="admin_archived_empty">لا توجد منتجات مؤرشفة حالياً.</string>
+    <string name="admin_action_restore_cd">استعادة المنتج إلى المتجر</string>
+    <string name="admin_archive_confirm_title">أرشفة المنتج؟</string>
+    <string name="admin_archive_confirm_body">سيتم إخفاء "%1$s" عن واجهة المتجر. ستبقى سجلات الطلبات السابقة سليمة ويمكنك استعادته لاحقاً.</string>
+    <string name="admin_unarchive_confirm_title">استعادة المنتج؟</string>
+    <string name="admin_unarchive_confirm_body">سيتم إعادة "%1$s" إلى واجهة المتجر وسيتمكن العملاء من شرائه مجدداً.</string>
+
+    <!-- ═══ AccountScreen — admin customers tab ═══ -->
+    <string name="admin_customers_title">بيانات وحسابات العملاء النشطة بالمزامنة</string>
+    <string name="admin_customers_subtitle">يتم مزامنة ورصد بيانات المشتركين والـ GPS المتزامن مع Firebase في الوقت الفعلي فور تفعيل الاتصال.</string>
+    <string name="admin_customer_badge_online">سحابي متصل 🟢</string>
+    <string name="admin_customer_phone">الهاتف: %1$s %2$s</string>
+
+    <!-- ═══ AccountScreen — contact info ═══ -->
+    <string name="contact_info_body">يسرنا خدمتك عبر مكتبنا الرئيسي في العراق وفي فروعنا الإلكترونية المتعددة. تواصل معنا على الرقم:\n\n📱 هاتف الدعم الفني: 07841703018\n📧 بريد المعايرة: cs@electronic-city.iq\n📍 الموقع: بغداد - شارع الصناعة - مجمع المهندسين الكهروميكانيكي</string>
+
+    <!-- ═══ AccountScreen — privacy policy ═══ -->
+    <string name="privacy_body">حماية بياناتك الشخصية وتفاصيل طلبات الشحن COD تندرج ضمن أولويات تطبيق إلكترونك سيتي. نقوم بحفظ تفاصيل الطلبات في جهازك محلياً لضمان إمكانية العمل الكامل دون إنترنت، ويتم إرسالها فقط وبشكل مشفر ومأمون لخوادم الـ Firebase والـ Supabase المعتمدة لإيصال الطرود.</string>
+
+    <!-- ═══ AccountScreen — terms ═══ -->
+    <string name="terms_body">١. جميع طلبات الشراء داخل متجر إلكترونك سيتي يتم دفع مبالغها بنظام الدفع عند الاستلام نقداً (Cash On Delivery - COD).\n٢. يحق للعميل فحص القطع والمتحكمات الإلكترونية قبل التسديد.\n٣. في حال تم طلب منتج في وضع عدم الاتصال (Offline Zone)، سيتم توقيف حالة تسليم الشحنة حتى عودة التغطية ومزامنة طردك تلقائياً.</string>
+
+    <!-- ═══ AccountScreen — logout dialog ═══ -->
+    <string name="logout_body">بالنقر على تأكيد الخروج سيتم إلغاء جلسة التصفح المحلية، ويفقد الهاتف بيانات الجلسة المؤقتة. سيتم الاحتفاظ بسجل طلبات COD وكتالوج القطع محلياً.</string>
+    <string name="logout_action_confirm">تأكيد تسجيل الخروج</string>
+
+    <!-- ═══ AccountScreen — order card ═══ -->
+    <string name="order_id_short">طلب #%1$s</string>
+    <string name="order_date">تاريخ الطلب: %1$s</string>
+    <string name="order_recipient">المستلم: %1$s</string>
+    <string name="order_phone">الهاتف: %1$s</string>
+    <string name="order_shipping_address">عنوان الشحن: %1$s</string>
+    <string name="order_items_label">تفاصيل المشتريات:</string>
+    <string name="order_item_line">%1$s (x%2$d)</string>
+    <string name="order_status_label">حالة شحن وتوصيل الطلب:</string>
+    <string name="order_total_cod">المجموع الإجمالي المطلوب (COD):</string>
+    <string name="order_synced">متزامن خادومياً</string>
+    <string name="order_local">محفوظ محلياً دون اتصال</string>
+    <string name="order_date_fallback">قيد الطلب</string>
+    <string name="order_status_pending">قيد الانتظار</string>
+    <string name="order_status_processing">قيد المعالجة</string>
+    <string name="order_status_shipping">قيد الشحن</string>
+    <string name="order_status_delivered">تم التوصيل</string>
+    <string name="order_step_confirm">تأكيد</string>
+    <string name="order_step_process">تجهيز</string>
+    <string name="order_step_ship_cod">شحن COD</string>
+    <string name="order_step_deliver">تسليم</string>
 </resources>

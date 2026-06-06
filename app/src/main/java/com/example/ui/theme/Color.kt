@@ -23,3 +23,16 @@ val TextSecondary = Color(0xFF5F6A58)
 val DiscountRed = Color(0xFFD32F2F)        // Price discounts tag
 val FavoriteRed = Color(0xFFFF5252)        // Soft hearts/favorite fill
 val BorderLight = Color(0xFFE2EADF)        // Elegant line borders
+
+// Semantic — Warning / offline state
+val WarningAmberContainer = Color(0xFFFFF3E0) // Light amber bg (saved-locally indicator)
+val WarningAmberDeep = Color(0xFFE65100)     // Deep amber text/icon (offline accent)
+
+// Banner gradients (HomeScreen carousel)
+val BannerDarkOlive = Color(0xFF142410)   // Tipsun batteries banner
+val BannerDarkBlue = Color(0xFF0F1E24)    // CNC / smart controllers banner
+val BannerDarkAmber = Color(0xFF241C10)   // Microcontrollers / Orange Pi banner
+
+// Image-fallback gradient (used when Coil fails to load product image)
+val PlaceholderGreenPrimary = Color(0xFF81C784) // Pastel green A200
+val PlaceholderGreenSoft = Color(0xFFC8E6C9)    // Pastel green 100

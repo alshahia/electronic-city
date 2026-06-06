@@ -9,25 +9,37 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.theme.TextSecondary
-import com.example.ui.viewmodel.ECommerceViewModel
+import com.example.R
+import com.example.ui.components.EmptyState
+import com.example.ui.locals.LocalWindowSizeClass
+import com.example.ui.viewmodel.AppViewModels
+import com.example.ui.viewmodel.ProductsUiState
 
 @Composable
 fun FavoritesScreen(
-    viewModel: ECommerceViewModel
+    vms: AppViewModels
 ) {
-    val allProducts by viewModel.productsFlow.collectAsState(initial = emptyList())
-    val favoritesSet by viewModel.favoritesSet.collectAsState()
+    val uiState by vms.shop.uiState.collectAsState()
+    val favoritesSet by vms.shop.favoritesSet.collectAsState()
 
+    if (uiState is ProductsUiState.Error) {
+        ErrorRetryCard(onRetry = { vms.shop.retrySync() })
+        return
+    }
+
+    val allProducts = (uiState as? ProductsUiState.Success)?.products.orEmpty()
     val favoriteProducts = allProducts.filter { favoritesSet.contains(it.id) }
 
     Column(
@@ -58,13 +70,13 @@ fun FavoritesScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Favorite,
-                        contentDescription = "Offline Saved",
+                        contentDescription = stringResource(R.string.section_wishlist_title),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "محفوظة دون اتصال ⚡",
+                        text = stringResource(R.string.section_wishlist_offline_badge),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -72,7 +84,7 @@ fun FavoritesScreen(
                 }
 
                 Text(
-                    text = "قائمة الأمنيات (${favoriteProducts.size})",
+                    text = stringResource(R.string.section_wishlist_count, favoriteProducts.size),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onBackground
@@ -81,43 +93,32 @@ fun FavoritesScreen(
         }
 
         if (favoriteProducts.isEmpty()) {
-            Box(
+            // D9.2 — shared empty-state slot. The previous
+            // implementation used an `Icons.Filled.Favorite`
+            // material icon at 64dp; the new vector drawable
+            // ships at 120dp for a stronger visual weight.
+            EmptyState(
+                illustration = painterResource(R.drawable.empty_wishlist_art),
+                title = stringResource(R.string.empty_wishlist_title),
+                subtitle = stringResource(R.string.empty_wishlist_subtitle),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Favorite,
-                        contentDescription = "No favorites",
-                        tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                        modifier = Modifier.size(64.dp)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "قائمة الأمنيات فارغة حالياً",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "قم بإضافة المكونات الإلكترونية التي تهمك للوصول السريع إليها وتصفحها بدون الحاجة لإنترنت.",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    )
-                }
-            }
+                    .weight(1f)
+            )
         } else {
+            // D9.1 — grid column count adapts to the window width.
+            // See ProductsScreen for the same pattern. FavoritesScreen
+            // reads the size class straight from the composition local
+            // so the code path is uniform across both catalog-style
+            // grids.
+            val windowSizeClass = LocalWindowSizeClass.current
+            val gridMinSize = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 180.dp
+                WindowWidthSizeClass.Medium -> 220.dp
+                else -> 260.dp
+            }
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Adaptive(minSize = gridMinSize),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -129,9 +130,9 @@ fun FavoritesScreen(
                     ProductColumnItem(
                         product = product,
                         isFavorite = true,
-                        onFavoriteToggle = { viewModel.toggleFavorite(product.id) },
-                        onCartAdd = { viewModel.addToCart(product.id) },
-                        onDoubleClick = { viewModel.showProductDetail(product) }
+                        onFavoriteToggle = { vms.shop.toggleFavorite(product.id) },
+                        onCartAdd = { vms.cart.addToCart(product.id) },
+                        onDoubleClick = { vms.shop.showProductDetail(product) }
                     )
                 }
             }

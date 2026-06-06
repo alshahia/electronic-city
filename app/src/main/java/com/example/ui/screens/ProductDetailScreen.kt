@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -24,19 +25,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.R
 import com.example.data.model.Product
+import com.example.ui.haptics.rememberHapticClick
 import com.example.ui.theme.*
-import com.example.ui.viewmodel.ECommerceViewModel
+import com.example.ui.viewmodel.AppViewModels
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductDetailScreen(
     product: Product,
-    viewModel: ECommerceViewModel,
+    vms: AppViewModels,
     onClose: () -> Unit
 ) {
-    val favoritesSet by viewModel.favoritesSet.collectAsState()
+    val favoritesSet by vms.shop.favoritesSet.collectAsState()
+    val haptic = rememberHapticClick()
     val isFavorite = favoritesSet.contains(product.id)
+    // D8.15 / T12.3 — the `isImageError` fallback (a green
+    // gradient + a translucent chip icon, rendered at
+    // lines ~166-185) is intentional. When Coil's image
+    // loader fails (404, malformed URL, network down at
+    // load time, etc.) the user sees a brand-aligned
+    // placeholder rather than a broken-image glyph. This
+    // is better than Coil's default `AsyncImagePainter`
+    // empty box and matches the rest of the storefront's
+    // visual language. The state is held in a
+    // `mutableStateOf(false)` and flipped to true in the
+    // `AsyncImage.onError` callback; once flipped it stays
+    // flipped for the lifetime of this composable.
     val isImageError = remember { mutableStateOf(false) }
 
     Scaffold(
@@ -61,8 +77,16 @@ fun ProductDetailScreen(
                     // Call to Action
                     Button(
                         onClick = {
-                            viewModel.addToCart(product.id)
+                            haptic()
+                            vms.cart.addToCart(product.id)
                         },
+                        // H3 / Phase 7B-2 — disable Add-to-Cart
+                        // when the product is sold out. The stock
+                        // check at the repo layer is the real
+                        // guard; this is just the UX to make the
+                        // unavailability obvious before the user
+                        // tries to tap.
+                        enabled = product.stock > 0,
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
@@ -78,12 +102,12 @@ fun ProductDetailScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.ShoppingCart,
-                                contentDescription = "Add to Cart",
+                                contentDescription = stringResource(R.string.cd_add_to_cart),
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "أضف للسلة التسوق",
+                                text = stringResource(R.string.detail_add_to_cart),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -98,19 +122,19 @@ fun ProductDetailScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "السعر الحالي",
+                            text = stringResource(R.string.detail_price_label),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = "${formatPrice(product.price)} د.ع",
+                            text = stringResource(R.string.price_with_currency, formatPrice(product.price), stringResource(R.string.currency_iqd)),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = MaterialTheme.colorScheme.primary
                         )
                         if (product.isDiscounted && product.originalPrice != null) {
                             Text(
-                                text = "${formatPrice(product.originalPrice)} د.ع",
+                                text = stringResource(R.string.price_with_currency, formatPrice(product.originalPrice), stringResource(R.string.currency_iqd)),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.outline,
                                 textDecoration = TextDecoration.LineThrough
@@ -141,6 +165,8 @@ fun ProductDetailScreen(
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(product.imageUrl)
                             .crossfade(true)
+                            .placeholder(R.drawable.ic_product_placeholder)
+                            .error(R.drawable.ic_product_error)
                             .build(),
                         contentDescription = product.nameAr,
                         contentScale = ContentScale.Crop,
@@ -153,12 +179,12 @@ fun ProductDetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Brush.linearGradient(listOf(Color(0xFF81C784), Color(0xFFC8E6C9)))),
+                            .background(Brush.linearGradient(listOf(PlaceholderGreenPrimary, PlaceholderGreenSoft))),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Icons.Filled.DeveloperBoard,
-                            contentDescription = "EC Shop Logo",
+                            contentDescription = stringResource(R.string.cd_ec_shop_logo),
                             tint = ShopGreenDark.copy(alpha = 0.4f),
                             modifier = Modifier.size(72.dp)
                         )
@@ -183,7 +209,7 @@ fun ProductDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ArrowForward, // Right-pointing arrow for RTL back
-                            contentDescription = "عودة",
+                            contentDescription = stringResource(R.string.cd_close),
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )
@@ -191,14 +217,17 @@ fun ProductDetailScreen(
 
                     // Wishlist / Save Offline Heart Badge toggler
                     IconButton(
-                        onClick = { viewModel.toggleFavorite(product.id) },
+                        onClick = {
+                            haptic()
+                            vms.shop.toggleFavorite(product.id)
+                        },
                         modifier = Modifier
                             .size(36.dp)
                             .background(Color.Black.copy(alpha = 0.45f), shape = CircleShape)
                     ) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = "حفظ الأمنيات",
+                            contentDescription = stringResource(R.string.cd_save_wishlist),
                             tint = if (isFavorite) FavoriteRed else Color.White,
                             modifier = Modifier.size(18.dp)
                         )
@@ -217,7 +246,7 @@ fun ProductDetailScreen(
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = "عرض خاص: خصم %$percent",
+                            text = stringResource(R.string.detail_discount_overlay, percent),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -251,7 +280,7 @@ fun ProductDetailScreen(
                             .padding(horizontal = 8.dp, vertical = 3.dp)
                     ) {
                         Text(
-                            text = if (product.stock > 0) "متوفر في المخزن (${product.stock})" else "نفذت الكمية",
+                            text = if (product.stock > 0) stringResource(R.string.detail_stock_available, product.stock) else stringResource(R.string.detail_stock_out),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (product.stock > 0) ShopGreenDark else MaterialTheme.colorScheme.error
@@ -306,7 +335,7 @@ fun ProductDetailScreen(
 
                 // Detail specs header
                 Text(
-                    text = "تفاصيل ومواصفات المنتج الإلكتروني:",
+                    text = stringResource(R.string.detail_specs_title),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -366,7 +395,7 @@ fun ProductDetailScreen(
                         color = MaterialTheme.colorScheme.primary
                     )
                     Text(
-                        text = "رمز المكون المرجعي:",
+                        text = stringResource(R.string.detail_reference_id_label),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -388,7 +417,7 @@ fun ProductDetailScreen(
                         horizontalArrangement = Arrangement.End
                     ) {
                         Text(
-                            text = "هذا المكون مدعوم بالكامل للتخفيض والطلب دون تفاعل إنترنت",
+                            text = stringResource(R.string.detail_offline_notice),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = ShopGreenDark,
@@ -398,7 +427,7 @@ fun ProductDetailScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Icon(
                             imageVector = Icons.Filled.CloudQueue,
-                            contentDescription = "Offline ready",
+                            contentDescription = stringResource(R.string.cd_offline_ready),
                             tint = ShopGreenDark,
                             modifier = Modifier.size(16.dp)
                         )

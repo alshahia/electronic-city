@@ -1,0 +1,357 @@
+<resources>
+    <string name="app_name">Electronic City</string>
+
+    <!-- OFL font attribution (D3 / Phase 3.3). -->
+    <string name="font_attribution_ibm_plex">This product includes IBM Plex Sans Arabic and IBM Plex Sans, licensed under the SIL Open Font License v1.1. Copyright \u00A9 2017 IBM Corp.</string>
+
+    <!-- ═══ Section headers (D5 / Phase 6.5) ═══ -->
+    <string name="section_categories">Categories</string>
+    <string name="section_more_link">More ×</string>
+    <string name="section_discounts_offers">Discounts full of offers</string>
+    <string name="section_recently_arrived">Recently arrived</string>
+    <string name="section_featured_for_you">Featured for you</string>
+    <string name="section_discounts_title">Featured discount offers</string>
+    <string name="section_wishlist_title">Wishlist</string>
+    <string name="section_wishlist_count">Wishlist (%1$d)</string>
+    <string name="section_wishlist_offline_badge">Saved offline ⚡</string>
+
+    <!-- ═══ Search (ProductsScreen) ═══ -->
+    <string name="search_placeholder">Search for a product…</string>
+    <string name="search_clear">Clear filter</string>
+    <string name="search_results_count">Found %1$d of the following items</string>
+    <string name="search_suggestions_label">Search suggestions:</string>
+    <string name="search_suggestion_cpu">Processor</string>
+    <string name="search_suggestion_memory">Memory</string>
+    <string name="search_suggestion_display">Display</string>
+    <string name="search_suggestion_battery">Battery</string>
+
+    <!-- ═══ Empty states ═══ -->
+    <string name="empty_search_title">No products match your search</string>
+    <string name="empty_search_subtitle">Try different search terms or browse another section</string>
+    <string name="empty_discounts_title">No active discount offers right now</string>
+    <string name="empty_discounts_subtitle">Check back later for new offers</string>
+    <string name="empty_wishlist_title">Your wishlist is currently empty</string>
+    <string name="empty_wishlist_subtitle">Add the electronic components you\'re interested in for quick access and offline browsing.</string>
+    <string name="empty_cart_title">Shopping cart is empty</string>
+    <string name="empty_cart_subtitle">You haven\'t added any parts or electronic circuits to your purchase log yet.</string>
+    <string name="empty_orders_title">You haven\'t created any purchase orders yet.</string>
+    <string name="empty_inventory_title">No products in the warehouse right now</string>
+    <string name="empty_customers_title">No active records or Firebase is currently offline.</string>
+
+    <!-- ═══ Error retry card (Phase 6.1) ═══ -->
+    <string name="error_load_failed">Couldn\'t load products</string>
+    <string name="error_load_subtitle">Check your internet connection and try again</string>
+    <string name="action_retry">Try Again</string>
+    <string name="error_admin_password">Incorrect password. Please try again.</string>
+    <string name="error_username_required">Please enter your account name correctly</string>
+    <string name="error_admin_required_fields">Please enter the name and price clearly</string>
+
+    <!-- ═══ Toasts ═══ -->
+    <string name="toast_back_exit">Press back again to exit</string>
+    <string name="toast_admin_loaded_for_edit">Data transferred to the form for editing!</string>
+    <string name="admin_action_lock_session">Lock session</string>
+    <string name="admin_action_lock_session_cd">Lock the admin session and return to the password gate</string>
+    <string name="admin_auth_locked">Too many attempts. Try again in %1$d seconds.</string>
+    <string name="admin_auth_locked_cd">Admin sign-in is temporarily locked</string>
+
+    <!-- ═══ Currency (centralized so future i18n can swap the suffix) ═══ -->
+    <string name="currency_iqd">IQD</string>
+    <string name="currency_iqd_short">IQD</string>
+    <string name="price_with_currency">%1$s %2$s</string>
+
+    <!-- ═══ Product card ═══ -->
+    <string name="product_add_to_cart">Add to cart</string>
+    <string name="product_discount_badge">-%1$d%%</string>
+    <string name="product_original_price">Price %1$s IQD</string>
+    <string name="product_current_price">%1$s IQD</string>
+    <string name="product_image_content_description">Product image</string>
+    <string name="product_favorite_content_description">Favorite</string>
+    <string name="product_add_to_cart_content_description">Add to cart</string>
+
+    <!-- ═══ Banners (HomeScreen) ═══ -->
+    <string name="banner_authorized_distributor">Authorized Distributor</string>
+    <string name="banner_1_title">Authorized Tipsun Battery Distributor</string>
+    <string name="banner_1_tagline">Best lithium cells and original router batteries</string>
+    <string name="banner_1_accent">True capacity and excellent performance for all your projects</string>
+    <string name="banner_2_title">Smart CNC controllers and parts</string>
+    <string name="banner_2_tagline">Ultimate precision and advanced measurement tools for development workshops</string>
+    <string name="banner_2_accent">Protection boards and high-torque motors</string>
+    <string name="banner_3_title">Microcontroller boards and Orange Pi</string>
+    <string name="banner_3_tagline">All controller boards, spare parts, and development in one place</string>
+    <string name="banner_3_accent">Measurement displays and programmed educational boxes for engineers</string>
+
+    <!-- ═══ Categories ═══ -->
+    <string name="category_processors">Processors</string>
+    <string name="category_memory">Memory</string>
+    <string name="category_peripherals">Peripherals</string>
+    <string name="category_battery">Batteries &amp; Accessories</string>
+    <string name="category_components">Components</string>
+    <string name="category_all">All</string>
+    <string name="category_development_boards">Development Boards</string>
+
+    <!-- ═══ MessageBus: cart ═══ -->
+    <string name="msg_cart_added">Added to cart successfully</string>
+    <!-- H3 / Phase 7B-2 — stock-mismatch feedback. The
+         %1$d is the available stock count so the user can
+         see how many are still buyable. -->
+    <string name="msg_cart_out_of_stock">This product is out of stock.</string>
+    <string name="msg_cart_out_of_stock_with_count">Only %1$d left in stock.</string>
+    <!-- T5.10 — surfaced by `OrderViewModel.submitCODCheckout`
+         when `placeCODOrder` returns Result.failure(
+         OutOfStockException). Same shape as the cart copy;
+         the user can either remove the offending line or
+         reduce the quantity. -->
+    <string name="msg_order_out_of_stock">Order could not be placed: one of the items just sold out.</string>
+
+    <!-- ═══ MessageBus: order ═══ -->
+    <string name="msg_order_missing_fields">Please fill in all required fields to submit the order</string>
+    <string name="msg_order_synced">Your order was submitted and synced to the server!</string>
+    <string name="msg_order_local">Order saved locally! It will sync automatically when internet returns.</string>
+    <string name="msg_order_failed">Could not process the order at this time</string>
+    <string name="msg_orders_resynced">Uploaded %1$d pending orders to the server and synced your account!</string>
+    <string name="msg_orders_already_synced">All orders and data are fully synced!</string>
+    <string name="msg_still_offline">Phone is still offline!</string>
+    <string name="msg_demo_online">Internet connection simulation is on (online)</string>
+    <string name="msg_demo_offline">Connection disabled (network failure mode)</string>
+    <!-- D9.3 — English locale -->
+    <string name="msg_demo_unavailable">Connectivity simulation is unavailable in this build (real Firebase is in use)</string>
+
+    <!-- D9.4 — FCM push notifications. English translations per the
+         D8.18 semantic-intent policy (titles are short and the body
+         uses a friendly second-person voice). -->
+    <string name="notification_channel_orders_name">Order Updates</string>
+    <string name="notification_channel_orders_desc">Notifications about order status and new promotions</string>
+    <string name="notification_default_title">Electronic City</string>
+    <string name="notification_default_body">You have a new notification from Electronic City</string>
+    <string name="notification_permission_rationale">We need your permission to show notifications about orders and important updates.</string>
+
+    <!-- ═══ MessageBus: shop sync ═══ -->
+    <string name="msg_shop_sync_ok">Products updated successfully from the server</string>
+    <string name="msg_shop_sync_offline">Could not connect to the internet, browse cached products!</string>
+    <string name="msg_shop_admin_ok">Store inventory updated and synced with customers!</string>
+    <string name="msg_shop_admin_offline">Server connection error, product saved locally!</string>
+    <string name="msg_shop_admin_ok_both">Product saved locally and synced to the server.</string>
+    <string name="msg_shop_admin_ok_local_only">Product saved locally. It will sync to the server once you are back online.</string>
+    <string name="msg_shop_admin_both_failed">Could not save the product. Please check your connection and try again.</string>
+    <string name="msg_shop_admin_local_failed">Saved locally only. The server will reconcile on the next sync.</string>
+    <string name="msg_shop_admin_archived">Product archived and hidden from the storefront.</string>
+    <string name="msg_shop_admin_unarchived">Product restored to the storefront.</string>
+    <string name="msg_shop_admin_archive_failed">Could not complete the operation. Please try again.</string>
+
+    <!-- ═══ MessageBus: profile sync ═══ -->
+    <string name="msg_profile_synced">Your cloud account was synced with Firebase successfully!</string>
+    <string name="msg_profile_local">Account saved locally and will sync to the cloud once connection returns!</string>
+
+    <!-- ═══ Content descriptions (accessibility) ═══ -->
+    <string name="cd_back_to_previous">Back to previous page</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_return">Return</string>
+    <string name="cd_topbar_contact">Contact us</string>
+    <string name="cd_add_to_cart">Add to Cart</string>
+    <string name="cd_save_wishlist">Save to wishlist</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_cart">Cart</string>
+    <string name="cd_sync">Sync</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_clear">Clear</string>
+    <string name="cd_add">Add</string>
+    <string name="cd_remove">Remove</string>
+    <string name="cd_remove_item">Remove Item</string>
+    <string name="cd_tech_item">Tech Item</string>
+    <string name="cd_empty_basket">Empty Basket</string>
+    <string name="cd_success_checkmark">Success checkmark</string>
+    <string name="cd_edit_profile">Edit Profile</string>
+    <string name="cd_avatar">Avatar</string>
+    <string name="cd_navigate">Navigate</string>
+    <string name="cd_sync_state">Sync state</string>
+    <string name="cd_completed_step">Completed step</string>
+    <string name="cd_offline_ready">Offline ready</string>
+    <string name="cd_ec_shop_logo">EC Shop Logo</string>
+    <string name="cd_cod_payment_only">COD Payment Type Only</string>
+
+    <!-- ═══ MainScreen chrome (top bar + bottom nav + network badge) ═══ -->
+    <string name="topbar_avatar_text">EC</string>
+    <string name="topbar_contact">Contact us</string>
+    <string name="badge_network_online">Online</string>
+    <string name="badge_network_offline">Offline</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_products">Products</string>
+    <string name="nav_discounts">Discounts</string>
+    <string name="nav_favorites">Wishlist</string>
+    <string name="nav_account">Account</string>
+
+    <!-- ═══ CartScreen ═══ -->
+    <string name="cart_title">Shopping cart (%1$d)</string>
+    <string name="cart_cost_products">Products total:</string>
+    <string name="cart_cost_delivery">Delivery fee (cash):</string>
+    <string name="cart_total_cod">Total (COD):</string>
+    <string name="cart_action_continue_cod">Continue with COD order</string>
+    <string name="cart_action_confirm_cod">Confirm and submit shipping order</string>
+    <string name="cart_checkout_title">Cash on Delivery (COD) shipping details</string>
+    <string name="cart_field_full_name">Recipient\'s full name *</string>
+    <string name="cart_field_phone">Active delivery phone number *</string>
+    <string name="cart_field_address">Detailed address (e.g., Baghdad, Karrada, near the square) *</string>
+    <string name="cart_payment_notice">Cash payment on delivery (COD) for safe delivery of spare parts.</string>
+    <string name="cart_empty_action_browse">Browse store offerings</string>
+    <string name="cart_success_title">Congratulations! Your COD order has been registered</string>
+    <string name="cart_success_online">Your shipping order was submitted and sent to the central server. An Electronic City agent will contact you soon!</string>
+    <string name="cart_success_offline">Order saved locally on the phone! Since internet is currently unavailable, the app will sync automatically once signal is restored.</string>
+    <string name="cart_success_action_view_orders">View my orders and return</string>
+
+    <!-- ═══ ProductDetailScreen ═══ -->
+    <string name="detail_add_to_cart">Add to shopping cart</string>
+    <string name="detail_price_label">Current price</string>
+    <string name="detail_discount_overlay">Special offer: %1$d%% off</string>
+    <string name="detail_stock_available">In stock (%1$d)</string>
+    <string name="detail_stock_out">Out of stock</string>
+    <string name="detail_specs_title">Electronic product details and specs:</string>
+    <string name="detail_reference_id_label">Reference component ID:</string>
+    <string name="detail_offline_notice">This component fully supports discount and ordering without internet</string>
+
+    <!-- ═══ AccountScreen — chrome ═══ -->
+    <string name="account_badge_registered">Cloud registered</string>
+    <string name="account_badge_guest">Guest account</string>
+    <string name="account_phone_unbound">No phone number linked yet</string>
+    <string name="account_phone_bound">%1$s %2$s</string>
+    <string name="account_sim_title">Simulate internet connection state</string>
+    <string name="account_sim_online_desc">Phone is connected to the server (instant sync and price updates active)</string>
+    <string name="account_sim_offline_desc">Network failure mode on (full cache browsing, COD orders saved for auto-sync when connection returns)</string>
+    <string name="account_sim_action_connect">Connect now to sync</string>
+    <string name="account_theme_title">App appearance (theme)</string>
+    <string name="account_theme_subtitle">Choose your preferred theme and color for comfortable browsing of electronic parts and microcontrollers</string>
+    <string name="account_theme_system">System</string>
+    <string name="account_theme_light">Light</string>
+    <string name="account_theme_dark">Dark</string>
+
+    <string name="account_language_title">App language</string>
+    <string name="account_language_subtitle">Pick the interface language; saved automatically and affects layout direction</string>
+    <string name="account_language_arabic">Arabic</string>
+    <string name="account_language_english">English</string>
+
+    <!-- ═══ AccountScreen — option rows ═══ -->
+    <string name="account_option_profile">My account and registration confirmation</string>
+    <string name="account_option_orders">My COD shipping orders</string>
+    <string name="account_option_contact">Contact us</string>
+    <string name="account_option_privacy">Privacy policy</string>
+    <string name="account_option_terms">Terms and conditions</string>
+    <string name="account_option_admin">Store inventory admin control panel</string>
+    <string name="account_option_logout">Log out</string>
+
+    <!-- ═══ AccountScreen — sheet titles ═══ -->
+    <string name="account_sheet_my_orders">My order history (COD)</string>
+    <string name="account_sheet_contact">Contact channels</string>
+    <string name="account_sheet_privacy">Data privacy policy</string>
+    <string name="account_sheet_terms">General terms and conditions</string>
+    <string name="account_sheet_logout">Log out</string>
+    <string name="account_sheet_profile">Account settings details</string>
+    <string name="account_sheet_admin">Store admin control panel</string>
+
+    <!-- ═══ AccountScreen — profile form ═══ -->
+    <string name="profile_intro">Edit and confirm your account details. When purchasing, these details will be automatically linked to your COD order.</string>
+    <string name="profile_avatar_label">Choose account icon (optional)</string>
+    <string name="profile_field_username">Account username *</string>
+    <string name="profile_field_phone">Active phone number with country code *</string>
+    <string name="profile_phone_placeholder">78XXXXXXXX</string>
+    <string name="profile_phone_country_hint">Tap the code box to change country (Iraq 🇮🇶, Saudi Arabia 🇸🇦, Jordan 🇯🇴, UAE 🇦🇪, Egypt 🇪🇬)</string>
+    <string name="profile_field_location">Recipient\'s home address for devices and parts *</string>
+    <string name="profile_address_placeholder">Enter your address in detail (e.g., Baghdad, Karrada, Tahrir Square)</string>
+    <string name="profile_gps_waiting">Connecting to GPS satellite sensors...</string>
+    <string name="profile_gps_success">GPS sensor read successfully!</string>
+    <string name="profile_gps_prompt">Tap the button below to fetch your current location via GPS automatically</string>
+    <string name="profile_gps_action">Fetch automatic location (GPS sensor)</string>
+    <string name="profile_action_save">Save changes and update cloud</string>
+    <string name="profile_action_confirm">Confirm account and sync cloud</string>
+    <string name="profile_action_cancel">Cancel</string>
+
+    <!-- ═══ AccountScreen — admin authentication ═══ -->
+    <string name="admin_auth_title">Store manager security authentication</string>
+    <string name="admin_auth_subtitle">Enter the secret password to unlock warehouse documents and manage quantities and specifications of electronic devices for all customers.</string>
+    <string name="admin_demo_notice_title">Notice to the trial engineer (Demo Mode)</string>
+    <string name="admin_demo_password_hint" translatable="false">D8.23: blanked — password is no longer displayed (vm-backed gate).</string>
+    <string name="admin_password_field">Secret access code *</string>
+    <string name="admin_action_login">Log in and access warehouse</string>
+
+    <!-- ═══ AccountScreen — admin tabs ═══ -->
+    <string name="admin_tab_customers">Customers</string>
+    <string name="admin_tab_inventory">Warehouse inventory</string>
+    <string name="admin_tab_archived">Archived</string>
+
+    <!-- ═══ AccountScreen — admin product form ═══ -->
+    <string name="admin_product_add">Add device</string>
+    <string name="admin_product_edit">Edit device</string>
+    <string name="admin_product_add_subtitle">Add a new wireless device or part</string>
+    <string name="admin_product_edit_subtitle">Edit quantity and price of an existing product</string>
+    <string name="admin_product_id_display">ID: %1$s</string>
+    <string name="admin_product_field_name_ar">Name in Arabic (sales and tracking string) *</string>
+    <string name="admin_product_name_ar_placeholder">Example: ESP8266 integrated processor board</string>
+    <string name="admin_product_field_name_en">Product Name (English Spec) *</string>
+    <string name="admin_product_name_en_placeholder">Example: NodeMCU ESP12E Wireless Module</string>
+    <string name="admin_product_field_stock">Warehouse stock quantity *</string>
+    <string name="admin_product_field_price">Sale price IQD *</string>
+    <string name="admin_product_field_category">Electronic part category *</string>
+    <string name="admin_product_field_desc_ar">Description and specs in Arabic (display screens) *</string>
+    <string name="admin_product_field_desc_en">Product Description &amp; Specs (English)</string>
+    <string name="admin_product_field_image">Product image (choose a sample or paste a custom URL) *</string>
+    <string name="admin_image_presets_label">Quick links:</string>
+    <string name="admin_action_new_form">New form</string>
+    <string name="admin_action_upload">Upload and confirm with cloud update</string>
+
+    <!-- ═══ AccountScreen — admin inventory tab ═══ -->
+    <string name="admin_inventory_title">List of parts and quantities reserved in the warehouse</string>
+    <string name="admin_inventory_subtitle">Tap any item to read and fill the form data to edit the sale price or update the stock quantity and shipping capacity.</string>
+    <string name="admin_inventory_stock_count">Quantity: %1$d pieces</string>
+    <string name="admin_inventory_price">%1$s IQD</string>
+    <string name="admin_action_archive_cd">Archive the product and hide it from the storefront</string>
+
+    <!-- ═══ AccountScreen — admin archived tab (H2) ═══ -->
+    <string name="admin_archived_title">Archived products (hidden from the storefront)</string>
+    <string name="admin_archived_subtitle">Products here are not visible in the storefront, but past order records stay fully intact.</string>
+    <string name="admin_archived_empty">No archived products yet.</string>
+    <string name="admin_action_restore_cd">Restore the product to the storefront</string>
+    <string name="admin_archive_confirm_title">Archive this product?</string>
+    <string name="admin_archive_confirm_body">"%1$s" will be hidden from the storefront. Past order records stay intact and you can restore it later.</string>
+    <string name="admin_unarchive_confirm_title">Restore this product?</string>
+    <string name="admin_unarchive_confirm_body">"%1$s" will be restored to the storefront and customers will be able to purchase it again.</string>
+
+    <!-- ═══ AccountScreen — admin customers tab ═══ -->
+    <string name="admin_customers_title">Active customer data and accounts via sync</string>
+    <string name="admin_customers_subtitle">Subscriber data and GPS sync with Firebase is monitored in real time once connection is activated.</string>
+    <string name="admin_customer_badge_online">Cloud connected 🟢</string>
+    <string name="admin_customer_phone">Phone: %1$s %2$s</string>
+
+    <!-- ═══ AccountScreen — contact info ═══ -->
+    <string name="contact_info_body">We\'re happy to serve you through our main office in Iraq and our multiple electronic branches. Contact us at:\n\n📱 Technical support: 07841703018\n📧 Calibration email: cs@electronic-city.iq\n📍 Location: Baghdad - Industry Street - Electromechanical Engineers Complex</string>
+
+    <!-- ═══ AccountScreen — privacy policy ═══ -->
+    <string name="privacy_body">Protecting your personal data and COD shipping order details is a priority for the Electronic City app. We save order details locally on your device to ensure full offline operation, and they are sent only in encrypted, secure form to approved Firebase and Supabase servers for parcel delivery.</string>
+
+    <!-- ═══ AccountScreen — terms ═══ -->
+    <string name="terms_body">1. All purchase orders in the Electronic City store are paid via Cash On Delivery (COD).\n2. Customers have the right to inspect parts and electronic microcontrollers before payment.\n3. If a product is ordered in offline mode (Offline Zone), the shipping delivery status will be paused until coverage returns and your parcel is automatically synced.</string>
+
+    <!-- ═══ AccountScreen — logout dialog ═══ -->
+    <string name="logout_body">By clicking confirm logout, the local browsing session will be cancelled and the phone will lose the temporary session data. COD order history and parts catalog will be retained locally.</string>
+    <string name="logout_action_confirm">Confirm logout</string>
+
+    <!-- ═══ AccountScreen — order card ═══ -->
+    <string name="order_id_short">Order #%1$s</string>
+    <string name="order_date">Order date: %1$s</string>
+    <string name="order_recipient">Recipient: %1$s</string>
+    <string name="order_phone">Phone: %1$s</string>
+    <string name="order_shipping_address">Shipping address: %1$s</string>
+    <string name="order_items_label">Purchase details:</string>
+    <string name="order_item_line">%1$s (x%2$d)</string>
+    <string name="order_status_label">Order shipping and delivery status:</string>
+    <string name="order_total_cod">Total required (COD):</string>
+    <string name="order_synced">Synced to server</string>
+    <string name="order_local">Saved locally offline</string>
+    <string name="order_date_fallback">Order pending</string>
+    <string name="order_status_pending">Pending</string>
+    <string name="order_status_processing">Processing</string>
+    <string name="order_status_shipping">Shipping</string>
+    <string name="order_status_delivered">Delivered</string>
+    <string name="order_step_confirm">Confirm</string>
+    <string name="order_step_process">Process</string>
+    <string name="order_step_ship_cod">Ship COD</string>
+    <string name="order_step_deliver">Deliver</string>
+</resources>

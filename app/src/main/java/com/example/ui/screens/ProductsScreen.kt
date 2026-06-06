@@ -12,46 +12,74 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.R
+import com.example.ui.components.EmptyState
+import com.example.ui.locals.LocalWindowSizeClass
 import com.example.ui.theme.ShopGreenPrimary
 import com.example.ui.theme.TextSecondary
-import com.example.ui.viewmodel.ECommerceViewModel
+import com.example.ui.viewmodel.AppViewModels
+import com.example.ui.viewmodel.ProductsUiState
 
 @Composable
 fun ProductsScreen(
-    viewModel: ECommerceViewModel
+    vms: AppViewModels
 ) {
-    val allProducts by viewModel.productsFlow.collectAsState(initial = emptyList())
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedCategory by viewModel.selectedCategory.collectAsState()
-    val favoritesSet by viewModel.favoritesSet.collectAsState()
+    val uiState by vms.shop.uiState.collectAsState()
+    val searchQuery by vms.shop.searchQuery.collectAsState()
+    val selectedCategory by vms.shop.selectedCategory.collectAsState()
+    val favoritesSet by vms.shop.favoritesSet.collectAsState()
+
+    val allProducts = (uiState as? ProductsUiState.Success)?.products.orEmpty()
+
+    // Hoist stringResource() calls out of per-item lambdas. The filter
+    // and items() blocks run once per product per recomposition, so any
+    // stringResource() call inside them is wasted work; binding them at
+    // composable scope (cheap) and referencing the cached value is cheaper.
+    val allCategory = stringResource(R.string.category_all)
+    val processorCategory = stringResource(R.string.category_processors)
+    val memoryCategory = stringResource(R.string.category_memory)
+    val peripheralsCategory = stringResource(R.string.category_peripherals)
+    val batteryCategory = stringResource(R.string.category_battery)
+    val componentsCategory = stringResource(R.string.category_components)
 
     // Filter categories matching standard seeds
     val categories = listOf(
-        "الكل",
-        "المعالجات",
-        "الذاكرة",
-        "الملحقات",
-        "البطاريات ومستلزماتها",
-        "العناصر الإلكترونية"
+        allCategory,
+        processorCategory,
+        memoryCategory,
+        peripheralsCategory,
+        batteryCategory,
+        componentsCategory,
     )
 
     // Filter logic
     val filteredProducts = allProducts.filter { product ->
         val matchesSearch = product.nameAr.contains(searchQuery, ignoreCase = true) ||
                 product.nameEn.contains(searchQuery, ignoreCase = true)
-        val matchesCategory = selectedCategory == null || selectedCategory == "الكل" ||
+        val matchesCategory = selectedCategory == null ||
+                selectedCategory == allCategory ||
                 product.categoryAr == selectedCategory
 
         matchesSearch && matchesCategory
+    }
+
+    // Phase 6.1 — render the retry card on Error. Otherwise keep the
+    // normal product grid layout with the search box and filter chips.
+    if (uiState is ProductsUiState.Error) {
+        ErrorRetryCard(onRetry = { vms.shop.retrySync() })
+        return
     }
 
     Column(
@@ -67,10 +95,10 @@ fun ProductsScreen(
         ) {
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { viewModel.updateSearchQuery(it) },
+                onValueChange = { vms.shop.updateSearchQuery(it) },
                 placeholder = {
                     Text(
-                        text = "ابحث عن منتج...",
+                        text = stringResource(R.string.search_placeholder),
                         fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth(),
@@ -79,15 +107,15 @@ fun ProductsScreen(
                 },
                 leadingIcon = {
                     if (searchQuery.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.updateSearchQuery("") }) {
-                            Icon(Icons.Filled.Close, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        IconButton(onClick = { vms.shop.updateSearchQuery("") }) {
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.cd_clear), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 },
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Search,
-                        contentDescription = "Search",
+                        contentDescription = stringResource(R.string.cd_search),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 },
@@ -112,15 +140,15 @@ fun ProductsScreen(
         ) {
             items(categories) { categoryName ->
                 val isSelected = (selectedCategory == categoryName) ||
-                        (categoryName == "الكل" && selectedCategory == null)
-                
+                        (categoryName == allCategory && selectedCategory == null)
+
                 FilterChip(
                     selected = isSelected,
                     onClick = {
-                        if (categoryName == "الكل") {
-                            viewModel.selectCategory(null)
+                        if (categoryName == allCategory) {
+                            vms.shop.selectCategory(null)
                         } else {
-                            viewModel.selectCategory(categoryName)
+                            vms.shop.selectCategory(categoryName)
                         }
                     },
                     label = {
@@ -160,18 +188,18 @@ fun ProductsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "تم العثور على ${filteredProducts.size} من العناصر الآتية",
+                    text = stringResource(R.string.search_results_count, filteredProducts.size),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
                 TextButton(
-                    onClick = { viewModel.updateSearchQuery("") },
+                    onClick = { vms.shop.updateSearchQuery("") },
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier.height(24.dp)
                 ) {
                     Text(
-                        text = "مسح التصفية",
+                        text = stringResource(R.string.search_clear),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.error
                     )
@@ -187,14 +215,19 @@ fun ProductsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "اقتراحات البحث:",
+                    text = stringResource(R.string.search_suggestions_label),
                     fontSize = 11.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Medium
                 )
-                listOf("معالج", "ذاكرة", "شاشة", "بطارية").forEach { tag ->
+                listOf(
+                    stringResource(R.string.search_suggestion_cpu),
+                    stringResource(R.string.search_suggestion_memory),
+                    stringResource(R.string.search_suggestion_display),
+                    stringResource(R.string.search_suggestion_battery),
+                ).forEach { tag ->
                     SuggestionChip(
-                        onClick = { viewModel.updateSearchQuery(tag) },
+                        onClick = { vms.shop.updateSearchQuery(tag) },
                         label = { Text(text = tag, fontSize = 10.sp) },
                         border = BorderStroke(
                             width = 0.5.dp,
@@ -214,32 +247,32 @@ fun ProductsScreen(
 
         // 3. Grid of Products
         if (filteredProducts.isEmpty()) {
-            Box(
+            // D9.2 — shared empty-state slot. Replaces an ad-hoc
+            // Icon + Spacer + Text + Spacer + Text block that lived
+            // in 5 screens with subtle font-size / alpha drift.
+            EmptyState(
+                illustration = painterResource(R.drawable.empty_search_art),
+                title = stringResource(R.string.empty_search_title),
+                subtitle = stringResource(R.string.empty_search_subtitle),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "لا توجد منتجات مطابقة للبحث",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "جرب تغيير أحرف البحث أو تصفح قسماً آخر",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+                    .weight(1f)
+            )
         } else {
+            // D9.1 — grid column count adapts to the window width.
+            // `Adaptive(180.dp)` lets Compose pick the right count for
+            // any width (2 cols on a 360dp phone, 3 on a 600dp tablet,
+            // 4-5 on a 840dp+ tablet). No WindowSizeClass branching
+            // needed at this layer because the same grid scale-up
+            // behavior works at every width.
+            val windowSizeClass = LocalWindowSizeClass.current
+            val gridMinSize = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 180.dp
+                WindowWidthSizeClass.Medium -> 220.dp
+                else -> 260.dp
+            }
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Adaptive(minSize = gridMinSize),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -251,9 +284,9 @@ fun ProductsScreen(
                     ProductColumnItem(
                         product = product,
                         isFavorite = favoritesSet.contains(product.id),
-                        onFavoriteToggle = { viewModel.toggleFavorite(product.id) },
-                        onCartAdd = { viewModel.addToCart(product.id) },
-                        onDoubleClick = { viewModel.showProductDetail(product) }
+                        onFavoriteToggle = { vms.shop.toggleFavorite(product.id) },
+                        onCartAdd = { vms.cart.addToCart(product.id) },
+                        onDoubleClick = { vms.shop.showProductDetail(product) }
                     )
                 }
             }

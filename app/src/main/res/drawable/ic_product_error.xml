@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Phase 6.8 — error-state tile for product AsyncImage. A
+     semi-transparent placeholder with a centered broken-image icon
+     (Material Design "image_not_supported"). The tint is applied at
+     the call site so it picks up the theme. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <solid android:color="#FFF6E0" />
+            <stroke
+                android:width="1dp"
+                android:color="#FFE0A1" />
+        </shape>
+    </item>
+    <item
+        android:gravity="center"
+        android:width="32dp"
+        android:height="32dp">
+        <vector
+            android:width="32dp"
+            android:height="32dp"
+            android:viewportWidth="24"
+            android:viewportHeight="24"
+            android:tint="#FFC07A">
+            <path
+                android:fillColor="@android:color/white"
+                android:pathData="M21,5v6.59l-3,-3.01 -4,4.01L10,8.59 6.59,12 3,8.58V5c0,-1.1 0.9,-2 2,-2h14c1.1,0 2,0.9 2,2zM18,11.42l3,3.01V19c0,1.1 -0.9,2 -2,2H5c-1.1,0 -2,-0.9 -2,-2v-7.58l3.59,3.58L10,11.41l4,4 4,-3.99zM14.5,11c0.83,0 1.5,-0.67 1.5,-1.5S15.33,8 14.5,8 13,8.67 13,9.5s0.67,1.5 1.5,1.5z" />
+        </vector>
+    </item>
+</layer-list>

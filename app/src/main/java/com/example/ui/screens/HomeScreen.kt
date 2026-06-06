@@ -5,6 +5,9 @@ import androidx.compose.foundation.*
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,40 +25,55 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.R
 import com.example.data.model.Product
+import com.example.ui.haptics.rememberHapticClick
+import com.example.ui.locals.LocalWindowSizeClass
 import com.example.ui.theme.*
-import com.example.ui.viewmodel.ECommerceViewModel
+import com.example.ui.viewmodel.AppViewModels
+import com.example.ui.viewmodel.ProductsUiState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
-    viewModel: ECommerceViewModel,
+    vms: AppViewModels,
     onNavigateToCart: () -> Unit
 ) {
-    val featuredProducts by viewModel.featuredProductsFlow.collectAsState(initial = emptyList())
-    val discountedProducts by viewModel.discountedProductsFlow.collectAsState(initial = emptyList())
-    val allProducts by viewModel.productsFlow.collectAsState(initial = emptyList())
-    val favoritesSet by viewModel.favoritesSet.collectAsState()
-
-    val context = LocalContext.current
-    val isArabic = true // Fixed store localization in Arabic
+    val uiState by vms.shop.uiState.collectAsState()
+    val allProducts = (uiState as? ProductsUiState.Success)?.products.orEmpty()
+    val favoritesSet by vms.shop.favoritesSet.collectAsState()
 
     // Categories data from user's visual reference
     val categories = listOf(
-        CategoryItem("المعالجات", "Processors", Icons.Filled.Memory),
-        CategoryItem("الذاكرة", "Memory", Icons.Filled.Storage),
-        CategoryItem("الملحقات", "Peripherals", Icons.Filled.DeveloperBoard),
-        CategoryItem("البطاريات ومستلزماتها", "Battery & Accessories", Icons.Filled.BatteryChargingFull),
-        CategoryItem("العناصر الإلكترونية", "Components", Icons.Filled.Settings)
+        CategoryItem(stringResource(R.string.category_processors), stringResource(R.string.category_processors), Icons.Filled.Memory),
+        CategoryItem(stringResource(R.string.category_memory), stringResource(R.string.category_memory), Icons.Filled.Storage),
+        CategoryItem(stringResource(R.string.category_peripherals), stringResource(R.string.category_peripherals), Icons.Filled.DeveloperBoard),
+        CategoryItem(stringResource(R.string.category_battery), stringResource(R.string.category_battery), Icons.Filled.BatteryChargingFull),
+        CategoryItem(stringResource(R.string.category_components), stringResource(R.string.category_components), Icons.Filled.Settings)
     )
+
+    // Phase 6.1 — render the Error retry card when the catalog has no
+    // products and the last sync failed. Loading / Success just keep the
+    // normal scroll layout (Loading renders empty carousels, which is
+    // the same fallback the previous implementation had).
+    if (uiState is ProductsUiState.Error) {
+        ErrorRetryCard(
+            onRetry = { vms.shop.retrySync() }
+        )
+        return
+    }
+
+    val featuredProducts = allProducts.filter { it.isFeatured }
+    val discountedProducts = allProducts.filter { it.isDiscounted }
 
     Column(
         modifier = Modifier
@@ -70,10 +89,10 @@ fun HomeScreen(
 
         // 2. Categories Drawer Section ("الاقسام")
         SectionHeader(
-            title = "الأقسام",
+            title = stringResource(R.string.section_categories),
             onActionClick = {
-                viewModel.selectCategory(null)
-                viewModel.selectTab(3) // switch to Products tab
+                vms.shop.selectCategory(null)
+                vms.navigation.selectTab(3) // switch to Products tab
             }
         )
 
@@ -87,8 +106,8 @@ fun HomeScreen(
                     modifier = Modifier
                         .width(105.dp)
                         .clickable {
-                            viewModel.selectCategory(category.nameAr)
-                            viewModel.selectTab(3) // Switch to Products tab
+                            vms.shop.selectCategory(category.nameAr)
+                            vms.navigation.selectTab(3) // Switch to Products tab
                         },
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
@@ -137,76 +156,122 @@ fun HomeScreen(
         // 3. Discount Offers Carousel ("التخفيضات")
         if (discountedProducts.isNotEmpty()) {
             SectionHeader(
-                title = "التخفيضات المليئة بالعروض",
-                onActionClick = { viewModel.selectTab(2) } // open index 2 (Discounts)
+                title = stringResource(R.string.section_discounts_offers),
+                onActionClick = { vms.navigation.selectTab(2) } // open index 2 (Discounts)
             )
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(discountedProducts) { product ->
-                    ProductColumnItem(
-                        product = product,
-                        isFavorite = favoritesSet.contains(product.id),
-                        onFavoriteToggle = { viewModel.toggleFavorite(product.id) },
-                        onCartAdd = { viewModel.addToCart(product.id) },
-                        onDoubleClick = { viewModel.showProductDetail(product) }
-                    )
-                }
-            }
+            ProductsCarousel(
+                products = discountedProducts,
+                favoritesSet = favoritesSet,
+                onFavoriteToggle = { vms.shop.toggleFavorite(it.id) },
+                onCartAdd = { vms.cart.addToCart(it.id) },
+                onDoubleClick = { vms.shop.showProductDetail(it) },
+            )
             Spacer(modifier = Modifier.height(20.dp))
         }
 
         // 4. Recently Arrived ("وصل حديثاً")
         SectionHeader(
-            title = "وصل حديثاً",
+            title = stringResource(R.string.section_recently_arrived),
             onActionClick = {
-                viewModel.selectCategory(null)
-                viewModel.selectTab(3) // switch to direct catalog
+                vms.shop.selectCategory(null)
+                vms.navigation.selectTab(3) // switch to direct catalog
             }
         )
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(allProducts.take(5)) { product ->
-                ProductColumnItem(
-                    product = product,
-                    isFavorite = favoritesSet.contains(product.id),
-                    onFavoriteToggle = { viewModel.toggleFavorite(product.id) },
-                    onCartAdd = { viewModel.addToCart(product.id) },
-                    onDoubleClick = { viewModel.showProductDetail(product) }
-                )
-            }
-        }
+        ProductsCarousel(
+            products = featuredProducts,
+            favoritesSet = favoritesSet,
+            onFavoriteToggle = { vms.shop.toggleFavorite(it.id) },
+            onCartAdd = { vms.cart.addToCart(it.id) },
+            onDoubleClick = { vms.shop.showProductDetail(it) },
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         // 5. Featured Products Grid Display ("المنتجات المميزة")
         SectionHeader(
-            title = "المنتجات المميزة لك",
+            title = stringResource(R.string.section_featured_for_you),
             onActionClick = {
-                viewModel.selectCategory(null)
-                viewModel.selectTab(3)
+                vms.shop.selectCategory(null)
+                vms.navigation.selectTab(3)
             }
         )
 
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ProductsCarousel(
+            products = featuredProducts,
+            favoritesSet = favoritesSet,
+            onFavoriteToggle = { vms.shop.toggleFavorite(it.id) },
+            onCartAdd = { vms.cart.addToCart(it.id) },
+            onDoubleClick = { vms.shop.showProductDetail(it) },
+        )
+    }
+}
+
+/**
+ * Phase 6.1 — full-bleed retry card shown when ProductsUiState.Error is
+ * the only thing the catalog can tell us. Mirrors the same pattern used
+ * in ProductsScreen / DiscountsScreen / FavoritesScreen.
+ */
+@Composable
+fun ErrorRetryCard(
+    onRetry: () -> Unit
+) {
+    val haptic = rememberHapticClick()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            items(featuredProducts) { product ->
-                ProductColumnItem(
-                    product = product,
-                    isFavorite = favoritesSet.contains(product.id),
-                    onFavoriteToggle = { viewModel.toggleFavorite(product.id) },
-                    onCartAdd = { viewModel.addToCart(product.id) },
-                    onDoubleClick = { viewModel.showProductDetail(product) }
+            Icon(
+                imageVector = Icons.Filled.CloudOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
+                modifier = Modifier.size(64.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = stringResource(R.string.error_load_failed),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.error_load_subtitle),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(
+                onClick = {
+                    haptic()
+                    onRetry()
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.action_retry),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
@@ -244,22 +309,22 @@ fun BannerSliderSection() {
         ) { page ->
             when (page) {
                 0 -> BannerPage(
-                    title = "موزع معتمد لبطاريات Tipsun",
-                    tagline = "أفضل خلايا ليثيوم وبطاريات راوتر أصلية",
-                    accentText = "سعة حقيقية وأداء ممتاز لجميع مشاريعك",
-                    backgroundColor = Color(0xFF142410)
+                    title = stringResource(R.string.banner_1_title),
+                    tagline = stringResource(R.string.banner_1_tagline),
+                    accentText = stringResource(R.string.banner_1_accent),
+                    backgroundColor = BannerDarkOlive
                 )
                 1 -> BannerPage(
-                    title = "أجهزة التحكم والقطع الذكية CNC",
-                    tagline = "دقة متناهية وأجهزة قياس متقدمة لورش التطوير",
-                    accentText = "لوحات حماية ومحركات ذات عزم عالي",
-                    backgroundColor = Color(0xFF0F1E24)
+                    title = stringResource(R.string.banner_2_title),
+                    tagline = stringResource(R.string.banner_2_tagline),
+                    accentText = stringResource(R.string.banner_2_accent),
+                    backgroundColor = BannerDarkBlue
                 )
                 2 -> BannerPage(
-                    title = "لوحات الميكروكنترولر وأورانج باي",
-                    tagline = "جميع لوحات التحكم وقطع الغيار والتطوير في مكان واحد",
-                    accentText = "شاشات قياس وبوكس مبرمجة تعليمية للمهندسين",
-                    backgroundColor = Color(0xFF241C10)
+                    title = stringResource(R.string.banner_3_title),
+                    tagline = stringResource(R.string.banner_3_tagline),
+                    accentText = stringResource(R.string.banner_3_accent),
+                    backgroundColor = BannerDarkAmber
                 )
             }
         }
@@ -309,7 +374,7 @@ fun BannerPage(
                     .padding(horizontal = 8.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "موزع معتمد",
+                    text = stringResource(R.string.banner_authorized_distributor),
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -361,7 +426,7 @@ fun SectionHeader(
             color = MaterialTheme.colorScheme.onBackground
         )
         Text(
-            text = "المزيد ×",
+            text = stringResource(R.string.section_more_link),
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
@@ -372,6 +437,78 @@ fun SectionHeader(
     }
 }
 
+/**
+ * D9.1 — Renders a HomeScreen product strip. On Compact + Medium
+ * widths it stays a horizontal `LazyRow` of cards (175dp on phones,
+ * 220dp on tablets in portrait). On Expanded (>= 840dp, large
+ * tablets / foldables unfolded / ChromeOS) it swaps to a 2-column
+ * `LazyVerticalGrid` so the strip fills the extra horizontal
+ * space instead of showing long rows of card-thumbnail combos.
+ *
+ * The carousel-level layout decision is owned by this helper so
+ * each section header above (Discount Offers / Recently Arrived /
+ * Featured for You) can stay focused on its copy + action
+ * semantics. The width pick for the row branch is computed once
+ * per recomposition and reused for every item in the row.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun ProductsCarousel(
+    products: List<Product>,
+    favoritesSet: Set<String>,
+    onFavoriteToggle: (Product) -> Unit,
+    onCartAdd: (Product) -> Unit,
+    onDoubleClick: (Product) -> Unit,
+) {
+    val windowSizeClass = LocalWindowSizeClass.current
+    when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact,
+        WindowWidthSizeClass.Medium,
+        -> {
+            val itemWidth = when (windowSizeClass.widthSizeClass) {
+                WindowWidthSizeClass.Compact -> 175.dp
+                else -> 220.dp
+            }
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(products) { product ->
+                    ProductColumnItem(
+                        product = product,
+                        isFavorite = favoritesSet.contains(product.id),
+                        onFavoriteToggle = { onFavoriteToggle(product) },
+                        onCartAdd = { onCartAdd(product) },
+                        onDoubleClick = { onDoubleClick(product) },
+                        width = itemWidth,
+                    )
+                }
+            }
+        }
+        else -> {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(products) { product ->
+                    ProductColumnItem(
+                        product = product,
+                        isFavorite = favoritesSet.contains(product.id),
+                        onFavoriteToggle = { onFavoriteToggle(product) },
+                        onCartAdd = { onCartAdd(product) },
+                        onDoubleClick = { onDoubleClick(product) },
+                        width = null,
+                    )
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProductColumnItem(
@@ -379,11 +516,19 @@ fun ProductColumnItem(
     isFavorite: Boolean,
     onFavoriteToggle: () -> Unit,
     onCartAdd: () -> Unit,
-    onDoubleClick: () -> Unit = {}
+    onDoubleClick: () -> Unit = {},
+    // D9.1 — `width = null` lets the parent layout size the card
+    // (used inside `LazyVerticalGrid` cells). A non-null value pins
+    // the card to that width (used inside horizontal `LazyRow`s).
+    // Preserves the original 175dp default so existing call sites
+    // and `ProductColumnItem` users elsewhere stay visually
+    // identical on Compact phones.
+    width: Dp? = 175.dp,
 ) {
+    val haptic = rememberHapticClick()
+    val sizeModifier = if (width != null) Modifier.width(width) else Modifier
     Card(
-        modifier = Modifier
-            .width(175.dp)
+        modifier = sizeModifier
             .padding(vertical = 4.dp)
             .combinedClickable(
                 onDoubleClick = onDoubleClick,
@@ -401,51 +546,28 @@ fun ProductColumnItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(130.dp)
-                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.15f))
             ) {
-                // Image loader via Coil falling back to dynamic placeholder graphic
-                val isImageError = remember { mutableStateOf(false) }
-
-                if (!isImageError.value) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(product.imageUrl)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = product.nameAr,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                        onError = { isImageError.value = true }
-                    )
-                }
-
-                // If loading fails or offline, show elegant gradient backdrop with placeholder icon
-                if (isImageError.value) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Brush.linearGradient(listOf(Color(0xFF81C784), Color(0xFFC8E6C9)))),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.DeveloperBoard,
-                            contentDescription = "EC Item",
-                            tint = ShopGreenDark.copy(alpha = 0.5f),
-                            modifier = Modifier.size(50.dp)
-                        )
-                        Text(
-                            text = "EC Shop",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = ShopGreenDark.copy(alpha = 0.6f),
-                            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 6.dp)
-                        )
-                    }
-                }
+                // Phase 6.8 — Coil's `placeholder` + `error` builders replace
+                // the previous isImageError state machine. Renders a flat
+                // tile while loading and a tinted error tile on failure.
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(product.imageUrl)
+                        .crossfade(true)
+                        .placeholder(R.drawable.ic_product_placeholder)
+                        .error(R.drawable.ic_product_error)
+                        .build(),
+                    contentDescription = product.nameAr,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
 
                 // Favorite Love Icon Toggler
                 IconButton(
-                    onClick = onFavoriteToggle,
+                    onClick = {
+                        haptic()
+                        onFavoriteToggle()
+                    },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
@@ -454,7 +576,7 @@ fun ProductColumnItem(
                 ) {
                     Icon(
                         imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = "Favorite",
+                        contentDescription = stringResource(R.string.product_favorite_content_description),
                         tint = if (isFavorite) FavoriteRed else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp)
                     )
@@ -472,7 +594,7 @@ fun ProductColumnItem(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "تنزيلات %$percent",
+                            text = stringResource(R.string.product_discount_badge, percent),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -521,7 +643,7 @@ fun ProductColumnItem(
                 // Optional Original Price
                 if (product.isDiscounted && product.originalPrice != null) {
                     Text(
-                        text = "السعر ${formatPrice(product.originalPrice)} د.ع",
+                        text = stringResource(R.string.product_original_price, formatPrice(product.originalPrice)),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textDecoration = TextDecoration.LineThrough
@@ -532,7 +654,7 @@ fun ProductColumnItem(
 
                 // Current Price
                 Text(
-                    text = "${formatPrice(product.price)} د.ع",
+                    text = stringResource(R.string.product_current_price, formatPrice(product.price)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.primary
@@ -542,7 +664,10 @@ fun ProductColumnItem(
 
                 // "Add to Basket" Green Button
                 Button(
-                    onClick = onCartAdd,
+                    onClick = {
+                        haptic()
+                        onCartAdd()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.buttonColors(
@@ -557,12 +682,12 @@ fun ProductColumnItem(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.ShoppingCart,
-                            contentDescription = "Add to cart",
+                            contentDescription = stringResource(R.string.product_add_to_cart_content_description),
                             modifier = Modifier.size(15.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "أضف للسلة",
+                            text = stringResource(R.string.product_add_to_cart),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )

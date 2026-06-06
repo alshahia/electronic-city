@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
@@ -35,7 +36,7 @@ private val LightColorScheme = lightColorScheme(
     onSurface = TextPrimary,
     primaryContainer = ShopGreenContainer,
     onPrimaryContainer = ShopOnGreenContainer,
-    surfaceVariant = BackgroundLight,
+    surfaceVariant = Color(0xFFEEF3E6),        // Subtle differentiation from background (D8.9)
     outline = BorderLight
 )
 
@@ -46,11 +47,14 @@ fun MyApplicationTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = remember(darkTheme) {
+        if (darkTheme) DarkColorScheme else LightColorScheme
+    }
+    val typography = remember { AppTypography }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = typography,
         content = content
     )
 }

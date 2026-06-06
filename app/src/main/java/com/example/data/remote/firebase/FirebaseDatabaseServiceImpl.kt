@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import com.example.data.model.Order
 import com.example.data.model.Product
+import com.example.data.remote.NetworkSimulation
 import com.example.data.remote.RemoteDatabaseService
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +13,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 
-class FirebaseDatabaseServiceImpl(private val context: Context) : RemoteDatabaseService {
+// D9.3 — In-memory demo backend. The class is misleadingly named
+// (kept for the in-memory data shape and demo-toggle behavior) but it
+// does not talk to Firebase. It implements BOTH [RemoteDatabaseService]
+// (the contract that repositories depend on) and [NetworkSimulation]
+// (the demo-only connectivity toggle that the admin UI calls). When
+// `BuildConfig.USE_FIREBASE` is `true`, [ServiceLocator] returns a
+// [FirestoreRemoteDatabaseService] instead and this class is unused.
+class FirebaseDatabaseServiceImpl(private val context: Context) : RemoteDatabaseService, NetworkSimulation {
 
     // Toggleable network simulation state (user can toggle in App UI for demo purposes!)
     private val _isDemoOnline = MutableStateFlow(true)
@@ -39,6 +47,17 @@ class FirebaseDatabaseServiceImpl(private val context: Context) : RemoteDatabase
     }
 
     fun isDemoOnlineState(): Boolean = _isDemoOnline.value
+
+    // D9.3 — `NetworkSimulation` interface methods. The admin UI calls
+    // these via the interface so the VM doesn't need to depend on the
+    // concrete class. The legacy `setDemoOnline` / `isDemoOnlineState`
+    // methods are kept for any older callers and delegate to the same
+    // backing state.
+    override suspend fun setOnline(online: Boolean) {
+        _isDemoOnline.value = online
+    }
+
+    override fun isOnline(): Boolean = _isDemoOnline.value
 
     override suspend fun checkConnectionDirect(): Boolean {
         return isDeviceOnline() && _isDemoOnline.value
@@ -308,5 +327,29 @@ class FirebaseDatabaseServiceImpl(private val context: Context) : RemoteDatabase
         delay(1000) // simulate loading customers
         if (!checkConnectionDirect()) throw Exception("Online sync failed: Firebase is offline!")
         return usersDb.toList()
+    }
+
+    // D9.4 — In-memory backend has no real device-registry, so the
+    // token upload is a no-op that returns `true` to mirror the
+    // "accepted" UX. The token is also cached in `SharedPreferences`
+    // by `FcmService` itself; this method only exists to satisfy the
+    // contract for repositories / VMs that want to forward the
+    // token to whatever the active backend is.
+    override suspend fun uploadDeviceToken(token: String): Boolean {
+        return true
+    }
+
+    // D8.23 / Phase 7B-2 — In-memory stub for the admin gate. Returns
+    // success for any non-blank password. The real `FirestoreRemoteDatabaseService`
+    // (D9.3) will check a Firebase custom claim. Accepts the password
+    // here (but ignores it) so the call site signature is consistent
+    // between the in-memory and real backends.
+    override suspend fun requireAdmin(password: String): Result<Unit> {
+        delay(500) // simulate the auth check round-trip
+        return if (password.isBlank()) {
+            Result.failure(IllegalAccessException("Password is blank"))
+        } else {
+            Result.success(Unit)
+        }
     }
 }
