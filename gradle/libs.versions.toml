@@ -93,9 +93,9 @@ roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi
 roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
-firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx" }
-firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
-firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx" }
+firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version = "25.1.4" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version = "23.2.1" }
+firebase-messaging-ktx = { group = "com.google.firebase", name = "firebase-messaging-ktx", version = "24.1.2" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

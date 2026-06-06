@@ -1,5 +1,6 @@
 package com.example.ui.locals
 
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.DpSize
@@ -27,6 +28,7 @@ val LocalWindowSizeClass = staticCompositionLocalOf<WindowSizeClass> {
  * present. Matches a typical 360×640dp phone so callers get a sensible
  * Compact-width layout instead of crashing.
  */
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 val DefaultWindowSizeClass: WindowSizeClass = WindowSizeClass.calculateFromSize(
     DpSize(width = 360.dp, height = 640.dp)
 )

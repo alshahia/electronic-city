@@ -394,14 +394,14 @@ fun AccountScreen(
                     LanguageOptionButton(
                         text = stringResource(R.string.account_language_arabic),
                         selected = currentLanguageTag.startsWith("ar"),
-                        onClick = { activity.setAppLocale("ar") },
+                        onClick = { (activity as com.example.MainActivity).setAppLocale("ar") },
                         modifier = Modifier.weight(1f)
                     )
 
                     LanguageOptionButton(
                         text = stringResource(R.string.account_language_english),
                         selected = currentLanguageTag.startsWith("en"),
-                        onClick = { activity.setAppLocale("en") },
+                        onClick = { (activity as com.example.MainActivity).setAppLocale("en") },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -1830,7 +1830,7 @@ fun AccountOptionRow(
 fun OrderItemCard(order: com.example.data.model.OrderWithItems) {
     val dateString = try {
         val sdf = SimpleDateFormat("yyyy/MM/dd - hh:mm a", Locale("ar"))
-        sdf.format(Date(order.timestamp))
+        sdf.format(Date(order.order.timestamp))
     } catch (e: Exception) {
         stringResource(R.string.order_date_fallback)
     }
@@ -1857,29 +1857,29 @@ fun OrderItemCard(order: com.example.data.model.OrderWithItems) {
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (order.isSynced) ShopGreenContainer else WarningAmberContainer)
+                        .background(if (order.order.isSynced) ShopGreenContainer else WarningAmberContainer)
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = if (order.isSynced) Icons.Filled.CloudDone else Icons.Filled.CloudOff,
+                            imageVector = if (order.order.isSynced) Icons.Filled.CloudDone else Icons.Filled.CloudOff,
                             contentDescription = stringResource(R.string.cd_sync_state),
-                            tint = if (order.isSynced) ShopGreenDark else WarningAmberDeep,
+                            tint = if (order.order.isSynced) ShopGreenDark else WarningAmberDeep,
                             modifier = Modifier.size(14.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (order.isSynced) stringResource(R.string.order_synced) else stringResource(R.string.order_local),
+                            text = if (order.order.isSynced) stringResource(R.string.order_synced) else stringResource(R.string.order_local),
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (order.isSynced) ShopGreenDark else WarningAmberDeep
+                            color = if (order.order.isSynced) ShopGreenDark else WarningAmberDeep
                         )
                     }
                 }
 
                 // Reference Id code
                 Text(
-                    text = stringResource(R.string.order_id_short, order.id.take(6).uppercase()),
+                    text = stringResource(R.string.order_id_short, order.order.id.take(6).uppercase()),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -1889,9 +1889,9 @@ fun OrderItemCard(order: com.example.data.model.OrderWithItems) {
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(text = stringResource(R.string.order_date, dateString), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = stringResource(R.string.order_recipient, order.customerName), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-            Text(text = stringResource(R.string.order_phone, order.customerPhone), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = stringResource(R.string.order_shipping_address, order.customerAddress), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = stringResource(R.string.order_recipient, order.order.customerName), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(text = stringResource(R.string.order_phone, order.order.customerPhone), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = stringResource(R.string.order_shipping_address, order.order.customerAddress), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
             // Items come pre-fetched via OrderWithItems @Relation — no JSON parsing
             val itemsList = remember(order.items) {
@@ -1957,7 +1957,7 @@ fun OrderItemCard(order: com.example.data.model.OrderWithItems) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                val currentStatus = order.statusAr
+                val currentStatus = order.order.statusAr
                 val steps = listOf(
                     stringResource(R.string.order_step_confirm),
                     stringResource(R.string.order_step_process),
@@ -2037,7 +2037,7 @@ fun OrderItemCard(order: com.example.data.model.OrderWithItems) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = stringResource(R.string.price_with_currency, formatPrice(order.totalPrice), stringResource(R.string.currency_iqd)),
+                    text = stringResource(R.string.price_with_currency, formatPrice(order.order.totalPrice), stringResource(R.string.currency_iqd)),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Black,
                     color = MaterialTheme.colorScheme.primary

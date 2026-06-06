@@ -30,6 +30,8 @@ import com.example.data.model.Product
 import com.example.ui.components.EmptyState
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppViewModels
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

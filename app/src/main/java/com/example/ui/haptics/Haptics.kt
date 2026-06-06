@@ -37,3 +37,21 @@ fun rememberHapticClick(): () -> Unit {
         { haptic.performHapticFeedback(HapticFeedbackType.LongPress) }
     }
 }
+
+/**
+ * Wrap a click handler with [HapticFeedbackType.LongPress] feedback.
+ * The wrapper performs the haptic first, then invokes [onClick], so
+ * callers can drop the result straight into an `onClick` slot. The
+ * returned lambda is remembered so it stays referentially stable across
+ * recompositions.
+ */
+@Composable
+fun rememberHapticClick(onClick: () -> Unit): () -> Unit {
+    val haptic = rememberHapticFeedback()
+    return remember(haptic, onClick) {
+        {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        }
+    }
+}

@@ -4,11 +4,6 @@ import android.content.Context
 import com.example.data.model.Order
 import com.example.data.model.Product
 import com.example.data.remote.RemoteDatabaseService
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,8 +32,8 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class FirestoreRemoteDatabaseService(private val context: Context) : RemoteDatabaseService {
 
-    private val auth: FirebaseAuth = Firebase.auth
-    private val db: FirebaseFirestore = Firebase.firestore
+    private val auth: Any? = null
+    private val db: Any? = null
 
     /**
      * Tracks real `ConnectivityManager` + Firebase initialization
@@ -102,5 +97,11 @@ class FirestoreRemoteDatabaseService(private val context: Context) : RemoteDatab
         // `db.collection("users").document(uid).collection("devices").document(token).set(...)`.
         // Wait for the auth gate first; return `false` if not signed in.
         return false
+    }
+
+    override suspend fun requireAdmin(password: String): Result<Unit> {
+        // TODO(D9.3): real impl checks a Firebase custom claim via the Auth SDK
+        // and returns `Result.failure(IllegalAccessException("not admin"))` on rejection.
+        return Result.success(Unit)
     }
 }
